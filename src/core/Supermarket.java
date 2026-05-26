@@ -4,16 +4,13 @@ import users.User;
 import users.Customer;
 import users.Manager;
 import users.Cashier;
-
 import catalog.Catalog;
 import catalog.Category;
 import catalog.Item;
 import discount.DiscountPlan;
 
-
 import java.util.Map;
 import java.util.HashMap;
-
 
 public class Supermarket {
     private Map<String, User> users; //username -> User

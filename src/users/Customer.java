@@ -24,4 +24,8 @@ public class Customer extends User {
     public DiscountPlan getDiscountPlan() {
         return discountPlan;
     }
+
+    public String getAddress() {
+        return address;
+    }
 }

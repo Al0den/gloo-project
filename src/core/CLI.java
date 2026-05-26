@@ -1,10 +1,7 @@
 package core;
 
 import catalog.Category;
-import core.Session;
-import core.Supermarket;
 import users.User;
-
 
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -258,7 +255,6 @@ public class CLI {
             return;
         }
 
-        // For simplicity, we assume the username is the first name of the user
         User user = supermarket.getUser(name);
 
         if (user.checkPassword(password)) {
