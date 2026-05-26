@@ -22,22 +22,20 @@ public class Supermarket {
         discountPlans = new HashMap<>();
         catalog = new Catalog(new HashMap<>());
 
-        discountPlans.put("Default", new DiscountPlan("Default", 0.0));
-
         addManager("ceo", "ceo", "ceo", "123456789");
     }
 
-    public void addDiscountPlan(String planName, double globalDiscountPercentage) {
-        discountPlans.put(planName, new DiscountPlan(planName, globalDiscountPercentage));
+    public void addDiscountPlan(String planName, double globalDiscountPercentage, double globalDiscountMinimumCeiling, double oneTimeFee) {
+        discountPlans.put(planName, new DiscountPlan(planName, globalDiscountPercentage, globalDiscountMinimumCeiling, oneTimeFee));
     }
 
     public void addCustomer(String username, String firstName, String surname, String address, String password, String planName) {
-        Customer customer = new Customer(username, firstName, surname, password, address, discountPlans.get(planName));
+        Customer customer = new Customer(username, firstName, surname, address, password, discountPlans.get(planName));
         users.put(customer.getUsername(), customer);
     }
 
     public void addCustomer(String username, String firstName, String surname, String address, String password) {
-        addCustomer(username, firstName, surname, address, password, "Default");
+        addCustomer(username, firstName, surname, address, password, "normal");
     }
 
     public void addManager(String username, String firstName, String surname, String password) {
@@ -70,5 +68,20 @@ public class Supermarket {
     public void addItem(String categoryName, Item item) {
         Category cat = getCategoryOrCreate(categoryName);
         cat.addItem(item);
+    }
+
+    public void setup() {
+        getCategoryOrCreate("dairy");
+        getCategoryOrCreate("fruit-and-vegetables");
+        getCategoryOrCreate("meat");
+
+        addDiscountPlan("prime", 20, 50, 50);
+        addDiscountPlan("platinum", 30, 0, 200);
+        addDiscountPlan("normal", 0, 0, 0);
+   
+    }
+
+    public DiscountPlan getDiscountPlan(String planName) {
+        return discountPlans.get(planName);
     }
 }

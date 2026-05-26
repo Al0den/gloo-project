@@ -2,6 +2,9 @@ package core;
 
 import catalog.Category;
 import users.User;
+import users.Customer;
+import users.Manager;
+import discount.DiscountPlan;
 
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -81,10 +84,55 @@ public class CLI {
             case "runfile":
                 runFile(args);
                 break;
-
+            case "setup":
+                supermarket.setup();
+                System.out.println("Supermarket setup completed.");
+                break;
+            case "subscribetoplan":
+                subscribeToPlan(args);
+                break;
+            case "requestdelivery":
+                requestDelivery(args);
+                break;
             default:
                 System.out.println("Unknown command: " + command);
         }
+    }
+
+    private void requestDelivery(String[] args) {
+        if (session.getCurrentUser() == null || !session.getCurrentUser().getRole().equals("Customer")) {
+            System.out.println("Only customers can request deliveries.");
+            return;
+        }
+
+        Customer customer = (Customer) session.getCurrentUser();
+        customer.hasRequestedDelivery();
+
+        String address = customer.getAddress();
+        System.out.println("Delivery requested to address: " + address);
+    }
+
+    private void subscribeToPlan(String[] args) {
+        if (args.length < 1) {
+            System.out.println("Usage: subscribeToPlan <planName>");
+            return;
+        }
+
+        if (session.getCurrentUser() == null || !session.getCurrentUser().getRole().equals("Customer")) {
+            System.out.println("Only customers can subscribe to discount plans.");
+            return;
+        }
+
+        String planName = args[0];
+        DiscountPlan plan = supermarket.getDiscountPlan(planName);
+        if (plan == null) {
+            System.out.println("Discount plan not found: " + planName);
+            return;
+        }
+
+        Customer customer = (Customer) session.getCurrentUser();
+        customer.setDiscountPlan(plan);
+        System.out.println("Subscribed to discount plan: " + planName);
     }
 
     private void runFile(String[] args) {
@@ -116,14 +164,15 @@ public class CLI {
         String firstName = args[0];
         String surname = args[1];
         String username = args[2];
-        String password = args[3];
+        String address = args[3];
+        String password = args[4];
 
         if (supermarket.userExists(username)) {
             System.out.println("Username already exists: " + username);
             return;
         }
 
-        supermarket.addManager(username, firstName, surname, password);
+        supermarket.addCustomer(username, firstName, surname, address, password);
         System.out.println("Registered manager: " + firstName + " " + surname + " (" + username + ")");
     }
 

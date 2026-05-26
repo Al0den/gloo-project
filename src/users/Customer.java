@@ -5,11 +5,12 @@ import discount.DiscountPlan;
 public class Customer extends User {  
     private DiscountPlan discountPlan;
     private String address;
+    private boolean hasRequestedDelivery = false;
 
-    public Customer(String username, String firstName, String surname, String password, String address, DiscountPlan discountPlan) {
+    public Customer(String username, String firstName, String surname, String address, String password, DiscountPlan discountPlan) {
         super(username, firstName, surname, password);
-        this.discountPlan = discountPlan;
         this.address = address;
+        this.discountPlan = discountPlan;
     } 
 
     public void setDiscountPlan(DiscountPlan discountPlan) {
@@ -28,4 +29,18 @@ public class Customer extends User {
     public String getAddress() {
         return address;
     }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public boolean hasRequestedDelivery() {
+        return hasRequestedDelivery;
+    }   
+
+    public void requestDelivery() {
+        this.hasRequestedDelivery = true;
+    }
+
+    
 }
