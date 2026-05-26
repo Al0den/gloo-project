@@ -11,8 +11,8 @@ public class CLI {
     private Supermarket supermarket;
     private Session session;
 
-    public CLI() {
-        this.supermarket = new Supermarket();
+    public CLI(Supermarket supermarket) {
+        this.supermarket = supermarket;
         this.session = new Session();
     }
 
