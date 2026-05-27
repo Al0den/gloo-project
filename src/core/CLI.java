@@ -4,7 +4,8 @@ import catalog.Category;
 import catalog.Item;
 import users.User;
 import users.Customer;
-import discount.DiscountPlan;
+import discount.DiscountPolicyFactory;
+import discount.DiscountPolicy;
 
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -218,7 +219,7 @@ public class CLI {
             System.out.println("No active checkout. Use startCheckout to begin.");
             return;
         }
-        DiscountPlan plan = session.getCheckoutCustomer().getDiscountPlan();
+        DiscountPolicy plan = session.getCheckoutCustomer().getDiscountPolicy();
         double total = session.getCurrentCart().getTotalPrice(plan);
 
         session.setCurrentBill(total);
@@ -311,14 +312,10 @@ public class CLI {
         }
 
         String planName = args[0];
-        DiscountPlan plan = supermarket.getDiscountPlan(planName);
-        if (plan == null) {
-            System.out.println("Discount plan not found: " + planName);
-            return;
-        }
 
         Customer customer = (Customer) session.getCurrentUser();
-        customer.setDiscountPlan(plan);
+        DiscountPolicy plan = DiscountPolicyFactory.create(planName);
+        customer.setDiscountPolicy(plan);
         System.out.println("Subscribed to discount plan: " + planName);
     }
 

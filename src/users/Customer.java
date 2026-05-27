@@ -1,20 +1,20 @@
 package users;
 
-import discount.DiscountPlan;
+import discount.DiscountPolicy;
 
 public class Customer extends User {  
-    private DiscountPlan discountPlan;
+    private DiscountPolicy discountPolicy;
     private String address;
     private boolean hasRequestedDelivery = false;
 
-    public Customer(String username, String firstName, String surname, String address, String password, DiscountPlan discountPlan) {
+    public Customer(String username, String firstName, String surname, String address, String password, DiscountPolicy discountPolicy) {
         super(username, firstName, surname, password);
         this.address = address;
-        this.discountPlan = discountPlan;
+        this.discountPolicy = discountPolicy;
     } 
 
-    public void setDiscountPlan(DiscountPlan discountPlan) {
-        this.discountPlan = discountPlan;
+    public void setDiscountPolicy(DiscountPolicy discountPolicy) {
+        this.discountPolicy = discountPolicy;
     }
 
     @Override
@@ -22,8 +22,8 @@ public class Customer extends User {
         return "Customer";
     }
 
-    public DiscountPlan getDiscountPlan() {
-        return discountPlan;
+    public DiscountPolicy getDiscountPolicy() {
+        return discountPolicy;
     }
 
     public String getAddress() {

@@ -1,8 +1,7 @@
 package users;
 
 import catalog.Item;
-import discount.DiscountPlan;
-
+import discount.DiscountPolicy;
 import catalog.Category;
 
 import java.util.Map;
@@ -41,11 +40,11 @@ public class Cart {
         itemMap.put(item, itemMap.getOrDefault(item, 0) + quantity);
     }
 
-    public double getTotalPrice(DiscountPlan discountPlan) {
+    public double getTotalPrice(DiscountPolicy discountPolicy) {
         double total = 0;
 
         for (Map.Entry<Category, Map<Item, Integer>> categoryEntry : items.entrySet()) {
-            Category category = categoryEntry.getKey();
+            //Category category = categoryEntry.getKey();
             Map<Item, Integer> itemMap = categoryEntry.getValue();
 
             for (Map.Entry<Item, Integer> itemEntry : itemMap.entrySet()) {
@@ -53,14 +52,14 @@ public class Cart {
                 int quantity = itemEntry.getValue();
                 double price = item.getPrice() * quantity;
 
-                price = discountPlan.applyCategoryDiscount(category, price);
+                // price = discountPolicy.applyCategoryDiscount(category, price);
                 
 
                 total += price;
             }
         }
         
-        total = discountPlan.applyGlobalDiscount(total);
+        total = discountPolicy.apply(total);
 
         return total;
     }

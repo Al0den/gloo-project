@@ -7,7 +7,7 @@ import users.Cashier;
 import catalog.Catalog;
 import catalog.Category;
 import catalog.Item;
-import discount.DiscountPlan;
+import discount.DiscountPolicyFactory;
 import payment.POSDevice;
 import payment.TransactionSystem;
 import payment.BankCard;
@@ -17,7 +17,6 @@ import java.util.HashMap;
 
 public class Supermarket {
     private Map<String, User> users; //username -> User
-    private Map<String, DiscountPlan> discountPlans;
     private Catalog catalog;
 
     private double revenue = 0.0;
@@ -26,7 +25,6 @@ public class Supermarket {
     
     public Supermarket() {
         users = new HashMap<>();
-        discountPlans = new HashMap<>();
         catalog = new Catalog(new HashMap<>());
 
         tas = new TransactionSystem();
@@ -35,12 +33,8 @@ public class Supermarket {
         addManager("ceo", "ceo", "ceo", "123456789");
     }
 
-    public void addDiscountPlan(String planName, double globalDiscountPercentage, double globalDiscountMinimumCeiling, double oneTimeFee) {
-        discountPlans.put(planName, new DiscountPlan(planName, globalDiscountPercentage, globalDiscountMinimumCeiling, oneTimeFee));
-    }
-
     public void addCustomer(String username, String firstName, String surname, String address, String password, String planName) {
-        Customer customer = new Customer(username, firstName, surname, address, password, discountPlans.get(planName));
+        Customer customer = new Customer(username, firstName, surname, address, password, DiscountPolicyFactory.create(planName));
         users.put(customer.getUsername(), customer);
     }
 
@@ -93,17 +87,9 @@ public class Supermarket {
         getCategoryOrCreate("fruit-and-vegetables");
         getCategoryOrCreate("meat");
 
-        addDiscountPlan("prime", 20, 50, 50);
-        addDiscountPlan("platinum", 30, 0, 200);
-        addDiscountPlan("normal", 0, 0, 0);
-
         tas.registerCard(new BankCard("4242424242424242", "12345", 1000.0));
         tas.registerCard(new BankCard("1111222233334444", "0000", 5.0));
     }
-
-    public DiscountPlan getDiscountPlan(String planName) {
-        return discountPlans.get(planName);
-    } 
 
     public POSDevice getPosDevice() {
         return pos;
