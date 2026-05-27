@@ -64,4 +64,19 @@ public class Cart {
 
         return total;
     }
+
+    public void finalizeSale() {
+        for (Map.Entry<Category, Map<Item, Integer>> categoryEntry : items.entrySet()) {
+            Map<Item, Integer> itemMap = categoryEntry.getValue();
+
+            for (Map.Entry<Item, Integer> itemEntry : itemMap.entrySet()) {
+                Item item = itemEntry.getKey();
+                int quantity = itemEntry.getValue();
+                item.setStock(item.getStock() - quantity);
+            }
+        }
+
+        items = new HashMap<>();
+    }
+
 }

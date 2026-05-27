@@ -4,7 +4,6 @@ public class Item {
     private String name;
     private double price;
     private double weight;
-
     private Integer stock;
 
     public Item(String name, double price, double weight, Integer stock) {
@@ -23,7 +22,7 @@ public class Item {
     }
 
     public double getPrice() {
-        return price;
+        return price; 
     }
 
     public double getWeight() {
@@ -32,5 +31,9 @@ public class Item {
 
     public Integer getStock() {
         return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
     }
 }

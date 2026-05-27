@@ -8,6 +8,9 @@ import catalog.Catalog;
 import catalog.Category;
 import catalog.Item;
 import discount.DiscountPlan;
+import payment.POSDevice;
+import payment.TransactionSystem;
+import payment.BankCard;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -16,11 +19,18 @@ public class Supermarket {
     private Map<String, User> users; //username -> User
     private Map<String, DiscountPlan> discountPlans;
     private Catalog catalog;
+
+    private double revenue = 0.0;
+    private TransactionSystem tas;
+    private POSDevice pos;
     
     public Supermarket() {
         users = new HashMap<>();
         discountPlans = new HashMap<>();
         catalog = new Catalog(new HashMap<>());
+
+        tas = new TransactionSystem();
+        pos = new POSDevice(tas);
 
         addManager("ceo", "ceo", "ceo", "123456789");
     }
@@ -70,6 +80,14 @@ public class Supermarket {
         cat.addItem(item);
     }
 
+    public Item getItem(String itemName) {
+        return catalog.getItem(itemName);
+    }
+
+    public Category getItemCategory(String itemName) {
+        return catalog.getItemCategory(itemName);
+    }
+
     public void setup() {
         getCategoryOrCreate("dairy");
         getCategoryOrCreate("fruit-and-vegetables");
@@ -78,10 +96,34 @@ public class Supermarket {
         addDiscountPlan("prime", 20, 50, 50);
         addDiscountPlan("platinum", 30, 0, 200);
         addDiscountPlan("normal", 0, 0, 0);
-   
+
+        tas.registerCard(new BankCard("4242424242424242", "12345", 1000.0));
+        tas.registerCard(new BankCard("1111222233334444", "0000", 5.0));
     }
 
     public DiscountPlan getDiscountPlan(String planName) {
         return discountPlans.get(planName);
+    } 
+
+    public POSDevice getPosDevice() {
+        return pos;
+    }
+
+    public void addRevenue(double amount) {
+        revenue += amount;
+    }
+
+    public double getRevenue() {
+        return revenue;
+    }
+
+    public Map<String, Item> getInventory() {
+        Map<String, Item> inventory = new HashMap<>();
+
+        for (Category category : catalog.getCategories().values()) {
+            inventory.putAll(category.getItems());
+        }
+
+        return inventory;
     }
 }

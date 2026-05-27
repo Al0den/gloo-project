@@ -30,6 +30,10 @@ public class Category {
         return items.get(itemName);
     }
 
+    public Map<String, Item> getItems() {
+        return new HashMap<>(items);
+    }
+
     public Category getCategory() {
         return this;
     }

@@ -24,6 +24,30 @@ public class Catalog {
         }
     }
 
+    public Item getItem(String itemName) {
+        for (Category category : categories.values()) {
+            Item item = category.getItem(itemName);
+            if (item != null) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public Category getItemCategory(String itemName) {
+        for (Map.Entry<String, Category> entry : categories.entrySet()) {
+            Category category = entry.getValue();
+            if (category.getItem(itemName) != null) {
+                return category;
+            }
+        }
+        return null; 
+    }
+
+    public Map<String, Category> getCategories() {
+        return categories;
+    }
+
     public Item getItem(String categoryName, String itemName) {
         Category category = categories.get(categoryName);
         if (category != null) {

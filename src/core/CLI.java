@@ -1,14 +1,15 @@
 package core;
 
 import catalog.Category;
+import catalog.Item;
 import users.User;
 import users.Customer;
-import users.Manager;
 import discount.DiscountPlan;
 
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CLI {
     private Supermarket supermarket;
@@ -94,9 +95,195 @@ public class CLI {
             case "requestdelivery":
                 requestDelivery(args);
                 break;
+            case "startcheckout":
+                startCheckout(args);
+                break;
+            case "scanitem":
+                scanItem(args);
+                break;
+            case "computebill":
+                computeBill(args);
+                break;
+            case "simulatepayment":
+                simulatePayment(args);
+                break;
+            case "pay":
+                pay(args);
+                break;
+            case "showrevenue":
+                showRevenue(args);
+                break;
+            case "showinventory":
+                showInventory(args);
+                break;
             default:
                 System.out.println("Unknown command: " + command);
         }
+    }
+
+    private void pay(String[] args) {
+        if (!session.isCashier()) {
+            System.out.println("Only cashiers can launch payment.");
+            return;
+        }
+
+        if (!session.hasActiveCheckout()) {
+            System.out.println("No active checkout.");
+            return;
+        }
+
+        if (!session.hasComputedBill()) {
+            System.out.println("Compute the bill before payment.");
+            return;
+        }
+
+        if (args.length < 2) {
+            System.out.println("Usage: pay <cardNumber> <pin>");
+            return;
+        }
+
+        String cardNumber = args[0];
+        String pin = args[1];
+        double amount = session.getCurrentBill();
+
+        payment.PaymentResult result = supermarket.getPosDevice().processPayment(cardNumber, pin, amount);
+
+        if (!result.isSuccess()) {
+            System.out.println(result.getMessage());
+            return;
+        }
+
+        supermarket.addRevenue(amount);
+
+        session.getCurrentCart().finalizeSale();
+
+        System.out.println("Payment accepted.");
+        System.out.println("Receipt:");
+        System.out.println("Customer: " + session.getCheckoutCustomer().getUsername());
+        System.out.println("Total paid: " + amount);
+
+        session.endCheckout();
+    }
+
+    private void showRevenue(String[] args) {
+        if (!session.isManager()) {
+            System.out.println("Only managers can view revenue.");
+            return;
+        }
+
+        System.out.println("Total revenue: " + supermarket.getRevenue());
+    }
+
+    private void showInventory(String[] args) {
+        if (!session.isManager()) {
+            System.out.println("Only managers can view inventory.");
+            return;
+        }
+
+        System.out.println("Current inventory:");
+        for (Map.Entry<String, Item> entry : supermarket.getInventory().entrySet()) {
+            String itemName = entry.getKey();
+            Item item = entry.getValue();
+            System.out.println(itemName + " - Price: " + item.getPrice() + ", Stock: " + item.getStock());
+        }
+    }
+
+    private void simulatePayment(String[] args) {
+        if (!session.isCashier()) {
+            System.out.println("Only cashiers can simulate payments.");
+            return;
+        }
+
+        if (args.length < 1) {
+            System.out.println("Usage: simulatePayment <SUCCESS|INSUFFICIENT_FUNDS|PIN_WRONG|AUTH_DENIED>");
+            return;
+        }
+
+        try {
+            payment.PaymentOutcome outcome = payment.PaymentOutcome.valueOf(args[0].toUpperCase());
+            supermarket.getPosDevice().simulateNextPayment(outcome);
+            System.out.println("Next payment forced to: " + outcome);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid payment outcome: " + args[0]);
+        }
+    }
+
+    private void computeBill(String[] args) {
+        if (!session.isCashier()) {
+            System.out.println("Only cashiers can compute bills.");
+            return;
+        }
+
+        if (!session.hasActiveCheckout()) {
+            System.out.println("No active checkout. Use startCheckout to begin.");
+            return;
+        }
+        DiscountPlan plan = session.getCheckoutCustomer().getDiscountPlan();
+        double total = session.getCurrentCart().getTotalPrice(plan);
+
+        session.setCurrentBill(total);
+
+        System.out.println("Total bill: " + total);
+    }
+
+    private void scanItem(String[] args) {
+        if (args.length < 2) {
+            System.out.println("Usage: scanItem <itemName> <quantity>");
+            return;
+        }
+
+        if (!session.isCashier()) {
+            System.out.println("Only cashiers can scan items.");
+            return;
+        }
+
+        if (!session.hasActiveCheckout()) {
+            System.out.println("No active checkout. Use startCheckout to begin.");
+            return;
+        }
+
+        String itemName = args[0];
+        Item item = supermarket.getItem(itemName);
+        if (item == null) {
+            System.out.println("Item not found: " + itemName);
+            return;
+        }
+
+        Category cat = supermarket.getItemCategory(itemName);
+
+        int quantity;
+        try {
+            quantity = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid quantity. Please enter a valid number.");
+            return;
+        }
+
+        session.getCurrentCart().addItem(item, cat, quantity);
+        System.out.println("Scanned item: " + item.getName() + " - Price: " + item.getPrice() * quantity);
+    }
+
+    private void startCheckout(String[] args) {
+        if (args.length < 1) {
+            System.out.println("Usage: startCheckout <customerUsername>");
+            return;
+        }
+
+        if (!session.isCashier()) {
+            System.out.println("Only cashiers can start checkout.");
+            return;
+        }
+
+        String customerUsername = args[0];
+        User user = supermarket.getUser(customerUsername);
+        if (user == null || !(user instanceof Customer)) {
+            System.out.println("Customer not found: " + customerUsername);
+            return;
+        }
+
+        Customer customer = (Customer) user;
+        session.startCheckout(customer);
+        System.out.println("Started checkout for customer: " + customer.getFirstName() + " (" + customer.getUsername() + ")");
     }
 
     private void requestDelivery(String[] args) {
@@ -322,6 +509,14 @@ public class CLI {
         System.out.println("  setCategoryDiscount <categoryName> <discountPercentage> - Set discount for a category (Manager only)");
         System.out.println("  registerCashier <firstName> <surname> <username> <password> - Register a cashier");
         System.out.println("  registerCustomer <firstName> <surname> <username> <address> <password> - Register a customer");
+        System.out.println("  registerManager <firstName> <surname> <username> <password> - Register a manager");
+        System.out.println("  runFile <filename> - Run commands from a file");
+        System.out.println("  setup - Set up the supermarket with initial data");
+        System.out.println("  subscribeToPlan <planName> - Subscribe to a discount plan (Customer only)");
+        System.out.println("  requestDelivery - Request delivery for the current customer (Customer only)");
+        System.out.println("  startCheckout <customerUsername> - Start checkout for a customer (Cashier only)");
+        System.out.println("  scanItem <itemName> <quantity> - Scan an item during checkout (Cashier only)");
+        System.out.println("  computeBill - Compute the total bill for the current checkout (Cashier only)");
         System.out.println("  stop | exit - Exit the CLI");
     }
 

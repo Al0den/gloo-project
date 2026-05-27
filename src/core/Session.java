@@ -11,6 +11,23 @@ public class Session {
     private Customer checkoutCustomer;
     private Cart currentCart;
 
+    private Double currentBill = null;
+
+    public void setCurrentBill(double amount) {
+        this.currentBill = amount;
+    }
+
+    public double getCurrentBill() {
+        if (currentBill == null) {
+            throw new IllegalStateException("Bill has not been computed yet.");
+        }
+        return currentBill;
+    }
+
+    public boolean hasComputedBill() {
+        return currentBill != null;
+    }
+
     public boolean isLoggedIn() {
         return currentUser != null;
     }
@@ -77,9 +94,10 @@ public class Session {
         }
         return checkoutCustomer;
     }
-
+ 
     public void endCheckout() {
         this.checkoutCustomer = null;
         this.currentCart = null;
+        this.currentBill = null;
     }
 }
