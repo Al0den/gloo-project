@@ -1,14 +1,19 @@
 package catalog;
 
 import java.util.Map;
+
+import discount.CategoryPricingPolicy;
+import discount.NormalCategoryPricingPolicy;
+
 import java.util.HashMap;
 
 public class Category {
     private Map<String, Item> items;
-    public double categoryDiscountPercentage = 0.0;
+    private CategoryPricingPolicy pricingPolicy;
 
     public Category() {
         this.items = new HashMap<>();
+        this.pricingPolicy = new NormalCategoryPricingPolicy();
     }
 
     public void addItem(Item item) {
@@ -36,6 +41,15 @@ public class Category {
 
     public Category getCategory() {
         return this;
+    }
+
+    public CategoryPricingPolicy getPricingPolicy() {
+        return pricingPolicy;
+    }
+
+    public void setPricingPolicy(CategoryPricingPolicy pricingPolicy) {
+        this.pricingPolicy = pricingPolicy;
+
     }
 
 }

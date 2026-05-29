@@ -1,0 +1,11 @@
+package discount;
+
+import catalog.Item;
+
+public class NormalCategoryPricingPolicy implements CategoryPricingPolicy {
+    @Override
+    public double apply(Item item, int quantity) {
+        return item.getPrice() * quantity;
+    }
+    
+}

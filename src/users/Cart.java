@@ -44,18 +44,15 @@ public class Cart {
         double total = 0;
 
         for (Map.Entry<Category, Map<Item, Integer>> categoryEntry : items.entrySet()) {
-            //Category category = categoryEntry.getKey();
+            Category category = categoryEntry.getKey();
             Map<Item, Integer> itemMap = categoryEntry.getValue();
 
             for (Map.Entry<Item, Integer> itemEntry : itemMap.entrySet()) {
                 Item item = itemEntry.getKey();
                 int quantity = itemEntry.getValue();
-                double price = item.getPrice() * quantity;
 
-                // price = discountPolicy.applyCategoryDiscount(category, price);
-                
-
-                total += price;
+                double linePrice = category.getPricingPolicy().apply(item, quantity);
+                total += linePrice;
             }
         }
         

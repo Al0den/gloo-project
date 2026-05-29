@@ -341,22 +341,21 @@ public class CLI {
 
     private void registerManager(String[] args) {
         if (args.length < 4) {
-            System.out.println("Usage: registerManager <firstName> <surname> <username> <password>");
+            System.out.println("Usage: registerManager <firstName> <surname> <password>");
             return;
         }
 
         String firstName = args[0];
         String surname = args[1];
         String username = args[2];
-        String address = args[3];
-        String password = args[4];
+        String password = args[3];
 
         if (supermarket.userExists(username)) {
             System.out.println("Username already exists: " + username);
             return;
         }
 
-        supermarket.addCustomer(username, firstName, surname, address, password);
+        supermarket.addManager(username, firstName, surname, password);
         System.out.println("Registered manager: " + firstName + " " + surname + " (" + username + ")");
     }
 
@@ -422,14 +421,9 @@ public class CLI {
             return;
         }
 
-        if (discountPercentage < 0 || discountPercentage > 100) {
-            System.out.println("Discount percentage must be between 0 and 100.");
-            return;
-        }
 
         Category category = supermarket.getCategoryOrCreate(categoryName);
-        category.categoryDiscountPercentage = discountPercentage;
-        System.out.println("Set discount for category " + categoryName + " to " + discountPercentage + "%");
+        category.setPricingPolicy(new discount.PercentageCategoryPricingPolicy(discountPercentage));
     }
 
     private void addItem(String[] args) {
