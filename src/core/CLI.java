@@ -260,6 +260,17 @@ public class CLI {
             return;
         }
 
+        if (quantity <= 0) {
+            System.out.println("Quantity must be positive.");
+            return;
+        }
+
+        Integer stock = item.getStock();
+        if (stock != null && stock < quantity) {
+            System.out.println("Insufficient stock for item: " + item.getName() + ". Available: " + stock + ", requested: " + quantity);
+            return;
+        }
+
         session.getCurrentCart().addItem(item, cat, quantity);
         System.out.println("Scanned item: " + item.getName() + " - Price: " + item.getPrice() * quantity);
     }
@@ -294,7 +305,7 @@ public class CLI {
         }
 
         Customer customer = (Customer) session.getCurrentUser();
-        customer.hasRequestedDelivery();
+        customer.requestDelivery();
 
         String address = customer.getAddress();
         System.out.println("Delivery requested to address: " + address);
