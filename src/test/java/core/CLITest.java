@@ -58,7 +58,7 @@ class CLITest {
                 + "registercustomer Alice Martin alice \"ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ\" alicepwd\n"
                 + "logout\n"
                 + "login alice alicepwd\n"
-                + "requestdelivery \"ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ\"\n"
+                + "requestdelivery \"ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ\" morning\n"
                 + "logout\n"
                 + "login ceo 123456789\n"
                 + "registercashier Bob Dupont bob bobpwd\n"

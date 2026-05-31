@@ -8,6 +8,7 @@ import inventory.Item;
 import core.Supermarket;
 import delivery.DistanceCalculator;
 import delivery.LevenschteinDistanceCalculator;
+import delivery.DeliverySlot;
 
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -242,9 +243,24 @@ public class CLI {
     private void requestDelivery(String[] args) {
         Customer customer = (Customer) session.getCurrentUser();
         String address = args[0];
+        String time = args.length >= 2 ? args[1] : "morning";
+
+        if (!time.equals("morning") && !time.equals("lunch") && !time.equals("afternoon") && !time.equals("evening")) {
+            System.out.println("Invalid delivery time: " + time + ". Valid options are: morning, lunch, afternoon, evening.");
+            return;
+        }
+
         double distance = distanceCalculator.calculateDistance(address, SUPERMARKET_ADDRESS);
 
-        customer.requestDelivery(address, distance);
+        DeliverySlot slot;
+        try {
+            slot = supermarket.getDeliveryScheduler().getSlot(time);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid delivery slot: " + time);
+            return;
+        }
+
+        customer.requestDelivery(address, distance, slot);
         System.out.println("Delivery requested to address: " + address + ", distance: " + distance + " km");
     }
 

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import delivery.DeliverySlot;
 import discount.NormalDiscountPolicy;
 import discount.PlatinumDiscountPolicy;
 
@@ -33,13 +34,15 @@ class CustomerTest {
     @Test
     void requestDeliveryStoresDeliveryInformation() {
         Customer customer = new Customer("alice", "Alice", "Martin", "1 Main St", "pwd", new NormalDiscountPolicy());
+        DeliverySlot slot = new DeliverySlot("morning", 8, 12, 100.0, false, false);
 
         assertFalse(customer.hasRequestedDelivery());
 
-        customer.requestDelivery("2 Delivery St", 12.5);
+        customer.requestDelivery("2 Delivery St", 12.5, slot);
 
         assertTrue(customer.hasRequestedDelivery());
         assertEquals("2 Delivery St", customer.getDeliveryRequest().getAddress());
         assertEquals(12.5, customer.getDeliveryRequest().getDistanceKm());
+        assertSame(slot, customer.getDeliveryRequest().getSlot());
     }
 }

@@ -3,6 +3,8 @@ package delivery;
 import users.Cart;
 
 public class WeightDistanceDeliveryFee implements DeliveryFeePolicy {
+    private static double PEAK_HOUR_COEFF = 1.3;
+    private static double ECO_FRIENDLY_COEFF = 0.9;
     @Override
     public double computeFee(Cart cart, double itemsTotal, DeliveryRequest request) {
         double weight = cart.getTotalWeight();
@@ -16,6 +18,16 @@ public class WeightDistanceDeliveryFee implements DeliveryFeePolicy {
             return 15.0;
         }
 
-        return 15.0 + 0.05 * itemsTotal;
+        double fee = 15.0 + 0.05 * itemsTotal;
+
+        DeliverySlot slot = request.getSlot();
+        if (slot.isPeakHour()) {
+            fee *= PEAK_HOUR_COEFF;
+        }
+        if (slot.isEcoFriendly()) {
+            fee *= ECO_FRIENDLY_COEFF;
+        }
+
+        return fee;
     }
 }

@@ -2,6 +2,7 @@ package users;
 
 import discount.DiscountPolicy;
 import delivery.DeliveryRequest;
+import delivery.DeliverySlot;
 
 public class Customer extends User {  
     private DiscountPolicy discountPolicy;
@@ -40,10 +41,10 @@ public class Customer extends User {
         return hasRequestedDelivery;
     }   
 
-    public void requestDelivery(String address, Double distanceKm) {
+    public void requestDelivery(String address, Double distanceKm, DeliverySlot slot) {
         this.hasRequestedDelivery = true;
 
-        deliveryRequest = new DeliveryRequest(address, distanceKm);
+        deliveryRequest = new DeliveryRequest(address, distanceKm, slot);
     }
 
     public DeliveryRequest getDeliveryRequest() {

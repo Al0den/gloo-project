@@ -135,7 +135,7 @@ class SupermarketTest {
         supermarket.registerCustomer("Carol", "Buyer", "carol", "1 Main St", "pwd", "prime");
 
         Customer customer = (Customer) supermarket.getUser("carol");
-        customer.requestDelivery("1 Main St", 5.0);
+        customer.requestDelivery("1 Main St", 5.0, supermarket.getDeliveryScheduler().getSlot("morning"));
 
         Cart cart = new Cart();
         cart.addItem(supermarket.getItem("milk"), supermarket.getItemCategory("milk"), 6);

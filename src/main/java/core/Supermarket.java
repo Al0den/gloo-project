@@ -16,6 +16,7 @@ import discount.DiscountPolicyFactory;
 import delivery.DeliveryFeePolicy;
 import delivery.WeightDistanceDeliveryFee;
 import delivery.DeliveryRequest;
+import delivery.DeliveryScheduler;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -29,10 +30,12 @@ public class Supermarket {
     private POSDevice pos;
 
     private DeliveryFeePolicy deliveryFeePolicy;
+    private DeliveryScheduler deliveryScheduler;
     
     public Supermarket() {
         users = new HashMap<>();
         inventory = new Inventory(new HashMap<>());
+        deliveryScheduler = new DeliveryScheduler();
 
         tas = new TransactionSystem();
         pos = new POSDevice(tas);
@@ -189,5 +192,9 @@ public class Supermarket {
         addRevenue(oneTimeFee); // We currently dont have a way to pay this fee, but we can at least add it to the revenue of the supermarket
         
         customer.setDiscountPolicy(newPolicy);
+    }
+
+    public DeliveryScheduler getDeliveryScheduler() {
+        return deliveryScheduler;
     }
 }
