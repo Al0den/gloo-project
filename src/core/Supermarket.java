@@ -132,7 +132,7 @@ public class Supermarket {
             throw new IllegalArgumentException("Category does not exist");
         }
 
-        category.setPricingPolicy(new discount.PercentageCategoryPricingPolicy(discountPercentage));
+        category.setPricingPolicy(new inventory.PercentageCategoryPricingPolicy(discountPercentage));
     }
 
     public void addItem(String categoryName, String itemName, double price, double weight, int stock) {

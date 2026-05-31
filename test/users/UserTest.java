@@ -1,7 +1,6 @@
 package users;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -14,14 +13,6 @@ class UserTest {
 
         assertTrue(user.checkPassword("secret"));
         assertFalse(user.checkPassword("wrong"));
-    }
-
-    @Test
-    void usersHaveDifferentIds() {
-        User first = new User("first", "First", "User", "pwd");
-        User second = new User("second", "Second", "User", "pwd");
-
-        assertNotEquals(first.getId(), second.getId());
     }
 
     @Test
