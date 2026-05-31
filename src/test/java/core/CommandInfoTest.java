@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
+import cli.Command;
+import cli.CommandInfo;
+
 class CommandInfoTest {
     @Test
     void commandInfoStoresCommandMetadata() {

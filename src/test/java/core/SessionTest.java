@@ -13,6 +13,8 @@ import users.Manager;
 
 import org.junit.jupiter.api.Test;
 
+import cli.Session;
+
 class SessionTest {
     private static final double EPSILON = 0.0001;
 

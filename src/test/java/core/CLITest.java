@@ -9,6 +9,8 @@ import java.io.PrintStream;
 
 import org.junit.jupiter.api.Test;
 
+import cli.CLI;
+
 class CLITest {
     @Test
     void runDisplaysHelpAndThenExits() {

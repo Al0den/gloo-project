@@ -1,4 +1,4 @@
-package core;
+package cli;
 
 import users.User;
 import users.Customer;
@@ -6,8 +6,12 @@ import discount.DiscountPolicyFactory;
 import inventory.Category;
 import inventory.Item;
 import discount.DiscountPolicy;
+import users.Cart;
 
 import java.util.Scanner;
+
+import core.Supermarket;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -176,11 +180,13 @@ public class CLI {
             System.out.println("No active checkout. Use startCheckout to begin.");
             return;
         }
-        DiscountPolicy plan = session.getCheckoutCustomer().getDiscountPolicy();
-        double total = session.getCurrentCart().getTotalPrice(plan);
+        
+        Cart cart = session.getCurrentCart();
+        Customer customer = session.getCheckoutCustomer();
+
+        double total = supermarket.computeBill(customer, cart);
 
         session.setCurrentBill(total);
-
         System.out.println("Total bill: " + total);
     }
 

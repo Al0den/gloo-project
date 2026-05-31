@@ -2,6 +2,7 @@ package discount;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import inventory.CategoryPricingPolicy;
 import inventory.Item;
 
 import org.junit.jupiter.api.Test;

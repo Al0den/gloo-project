@@ -3,10 +3,10 @@ package users;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import discount.NormalDiscountPolicy;
-import discount.PercentageCategoryPricingPolicy;
 import discount.PrimeDiscountPolicy;
 import inventory.Category;
 import inventory.Item;
+import inventory.PercentageCategoryPricingPolicy;
 
 import org.junit.jupiter.api.Test;
 

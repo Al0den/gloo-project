@@ -1,4 +1,4 @@
-package core;
+package cli;
 
 public class CommandInfo {
     private String description;

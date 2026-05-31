@@ -1,6 +1,4 @@
-package discount;
-
-import inventory.Item;
+package inventory;
 
 public class NormalCategoryPricingPolicy implements CategoryPricingPolicy {
     @Override

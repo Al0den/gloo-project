@@ -1,10 +1,6 @@
 package inventory;
 
 import java.util.Map;
-
-import discount.CategoryPricingPolicy;
-import discount.NormalCategoryPricingPolicy;
-
 import java.util.HashMap;
 
 public class Category {

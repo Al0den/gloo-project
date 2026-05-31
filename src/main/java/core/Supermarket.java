@@ -39,7 +39,6 @@ public class Supermarket {
 
         registerManager("ceo", "ceo", "ceo", "123456789");
 
-        // Here, we wil only use the delivery fee Weight Distance based
         deliveryFeePolicy = new WeightDistanceDeliveryFee();
     }
 
