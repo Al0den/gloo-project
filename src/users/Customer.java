@@ -40,10 +40,10 @@ public class Customer extends User {
         return hasRequestedDelivery;
     }   
 
-    public void requestDelivery() {
+    public void requestDelivery(String address, Double distanceKm) {
         this.hasRequestedDelivery = true;
 
-        deliveryRequest = new DeliveryRequest(address, 10.0);
+        deliveryRequest = new DeliveryRequest(address, distanceKm);
     }
 
     public DeliveryRequest getDeliveryRequest() {

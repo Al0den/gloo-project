@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 
-
 public class CLI {
     private Map<String, CommandInfo> commands;
     private Supermarket supermarket;
@@ -232,10 +231,25 @@ public class CLI {
     }
 
     private void requestDelivery(String[] args) {
-        Customer customer = (Customer) session.getCurrentUser();
-        customer.requestDelivery();
+        if (args.length > 1) {
+            requestDeliveryWithDistance(args);
+        } else {
+            String[] newArgs = new String[2];
+            newArgs[0] = args[0];
+            newArgs[1] = "10";
+            requestDeliveryWithDistance(newArgs);
+        }
+    }
 
-        String address = customer.getAddress();
+    private void requestDeliveryWithDistance(String[] args) {
+        Customer customer = (Customer) session.getCurrentUser();
+
+        String address = args[0];
+        Double distance = parseDoubleArg(args[1], "distance");
+        if (distance == null) return;
+
+        customer.requestDelivery(address, distance);
+
         System.out.println("Delivery requested to address: " + address);
     }
 
