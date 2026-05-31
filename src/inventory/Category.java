@@ -1,4 +1,4 @@
-package catalog;
+package inventory;
 
 import java.util.Map;
 

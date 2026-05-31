@@ -1,6 +1,6 @@
 package discount;
 
-import catalog.Item;
+import inventory.Item;
 
 public class PercentageCategoryPricingPolicy implements CategoryPricingPolicy {
     private double discount = 0.0;

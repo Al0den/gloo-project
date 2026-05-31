@@ -4,52 +4,43 @@ import users.User;
 import users.Customer;
 import users.Manager;
 import users.Cashier;
-import catalog.Catalog;
-import catalog.Category;
-import catalog.Item;
 import discount.DiscountPolicyFactory;
+import inventory.Category;
+import inventory.Inventory;
+import inventory.Item;
+import users.Cart;
 import payment.POSDevice;
 import payment.TransactionSystem;
 import payment.BankCard;
+import discount.DiscountPolicy;
+import delivery.DeliveryFeePolicy;
+import delivery.WeightDistanceDeliveryFee;
+import delivery.DeliveryRequest;
 
 import java.util.Map;
 import java.util.HashMap;
 
 public class Supermarket {
     private Map<String, User> users; //username -> User
-    private Catalog catalog;
+    private Inventory inventory;
 
     private double revenue = 0.0;
     private TransactionSystem tas;
     private POSDevice pos;
+
+    private DeliveryFeePolicy deliveryFeePolicy;
     
     public Supermarket() {
         users = new HashMap<>();
-        catalog = new Catalog(new HashMap<>());
+        inventory = new Inventory(new HashMap<>());
 
         tas = new TransactionSystem();
         pos = new POSDevice(tas);
 
-        addManager("ceo", "ceo", "ceo", "123456789");
-    }
+        registerManager("ceo", "ceo", "ceo", "123456789");
 
-    public void addCustomer(String username, String firstName, String surname, String address, String password, String planName) {
-        Customer customer = new Customer(username, firstName, surname, address, password, DiscountPolicyFactory.create(planName));
-        users.put(customer.getUsername(), customer);
-    }
-
-    public void addCustomer(String username, String firstName, String surname, String address, String password) {
-        addCustomer(username, firstName, surname, address, password, "normal");
-    }
-
-    public void addManager(String username, String firstName, String surname, String password) {
-        Manager manager = new Manager(username, firstName, surname, password);
-        users.put(manager.getUsername(), manager);
-    }
-
-    public void addCashier(String username, String firstName, String surname, String password) {
-        Cashier cashier = new Cashier(username, firstName, surname, password);
-        users.put(cashier.getUsername(), cashier);
+        // Here, we wil only use the delivery fee Weight Distance based
+        deliveryFeePolicy = new WeightDistanceDeliveryFee();
     }
 
     public boolean userExists(String username) {
@@ -61,29 +52,24 @@ public class Supermarket {
     }
 
     public Category getCategoryOrCreate(String categoryName) {
-        Category category = catalog.getCategory(categoryName);
+        Category category = inventory.getCategory(categoryName);
         if (category == null) {
-            catalog.addCategory(categoryName);
-            category = catalog.getCategory(categoryName);
+            inventory.addCategory(categoryName);
+            category = inventory.getCategory(categoryName);
         }
         return category;
     }
 
-    public void addItem(String categoryName, Item item) {
-        Category cat = getCategoryOrCreate(categoryName);
-        cat.addItem(item);
-    }
-
     public Item getItem(String itemName) {
-        return catalog.getItem(itemName);
+        return inventory.getItem(itemName);
     }
 
     public Category getItemCategory(String itemName) {
-        return catalog.getItemCategory(itemName);
+        return inventory.getItemCategory(itemName);
     }
 
     public void setup() {
-        getCategoryOrCreate("dairy");
+        getCategoryOrCreate("diary");
         getCategoryOrCreate("fruit-and-vegetables");
         getCategoryOrCreate("meat");
 
@@ -106,10 +92,75 @@ public class Supermarket {
     public Map<String, Item> getInventory() {
         Map<String, Item> inventory = new HashMap<>();
 
-        for (Category category : catalog.getCategories().values()) {
+        for (Category category : this.inventory.getCategories().values()) {
             inventory.putAll(category.getItems());
         }
 
         return inventory;
+    }
+
+    public void registerManager(String firstName, String surname, String username, String password) {
+        if (userExists(username)) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+
+        Manager manager = new Manager(username, firstName, surname, password);
+        users.put(manager.getUsername(), manager);
+    }
+
+    public void registerCashier(String firstName, String surname, String username, String password) {
+        if (userExists(username)) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+
+        Cashier cashier = new Cashier(username, firstName, surname, password);
+        users.put(cashier.getUsername(), cashier);
+    }
+
+    public void registerCustomer(String firstName, String surname, String username, String address, String password, String planName) {
+        if (userExists(username)) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+
+        Customer customer = new Customer(username, firstName, surname, address, password, DiscountPolicyFactory.create(planName));
+        users.put(customer.getUsername(), customer);
+    }
+
+    public void setCategoryDiscount(String categoryName, double discountPercentage) {
+        Category category = inventory.getCategory(categoryName);
+        if (category == null) {
+            throw new IllegalArgumentException("Category does not exist");
+        }
+
+        category.setPricingPolicy(new discount.PercentageCategoryPricingPolicy(discountPercentage));
+    }
+
+    public void addItem(String categoryName, String itemName, double price, double weight, int stock) {
+        if (inventory.getCategory(categoryName) == null) {
+            throw new IllegalArgumentException("Category does not exist");
+        }
+
+        if (inventory.getItem(categoryName, itemName) != null) {
+            throw new IllegalArgumentException("Item already exists in category");
+        }
+
+        Item item = new Item(itemName, price, weight, stock);
+        inventory.addItem(categoryName, item);
+    }
+
+    public Double computeBill(Customer customer, Cart cart) {
+        DiscountPolicy discountPolicy = customer.getDiscountPolicy();
+
+        double total = cart.getTotalPrice(discountPolicy);
+
+        if (customer.hasRequestedDelivery()) {
+            DeliveryRequest deliveryRequest = customer.getDeliveryRequest();
+            double baseDeliveryFee = deliveryFeePolicy.computeFee(cart, total, deliveryRequest);
+            double deliveryFee = customer.getDiscountPolicy().applyDeliveryDiscount(baseDeliveryFee);
+
+            total += deliveryFee;
+        }
+
+        return total;
     }
 }

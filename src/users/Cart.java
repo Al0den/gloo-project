@@ -1,8 +1,8 @@
 package users;
 
-import catalog.Item;
 import discount.DiscountPolicy;
-import catalog.Category;
+import inventory.Category;
+import inventory.Item;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -73,6 +73,23 @@ public class Cart {
         }
 
         items = new HashMap<>();
+    }
+
+    public Double getTotalWeight() {
+        double totalWeight = 0;
+
+        for (Map.Entry<Category, Map<Item, Integer>> categoryEntry : items.entrySet()) {
+            Map<Item, Integer> itemMap = categoryEntry.getValue();
+
+            for (Map.Entry<Item, Integer> itemEntry : itemMap.entrySet()) {
+                Item item = itemEntry.getKey();
+                int quantity = itemEntry.getValue();
+
+                totalWeight += item.getWeight() * quantity;
+            }
+        }
+
+        return totalWeight;
     }
 
 }

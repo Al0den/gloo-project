@@ -5,4 +5,9 @@ public class NormalDiscountPolicy implements DiscountPolicy {
     public double apply(double total) {
         return total;
     }
+
+    @Override
+    public double applyDeliveryDiscount(double deliveryFee) {
+        return deliveryFee;
+    }
 }

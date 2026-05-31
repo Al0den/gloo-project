@@ -1,24 +1,53 @@
 package core;
 
-import catalog.Category;
-import catalog.Item;
 import users.User;
 import users.Customer;
 import discount.DiscountPolicyFactory;
+import inventory.Category;
+import inventory.Item;
 import discount.DiscountPolicy;
 
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+
+
 
 public class CLI {
+    private Map<String, CommandInfo> commands;
     private Supermarket supermarket;
     private Session session;
 
     public CLI(Supermarket supermarket) {
         this.supermarket = supermarket;
         this.session = new Session();
+        this.commands = new HashMap<>();
+
+        registerCommands();
+    }
+
+    private void registerCommands() {
+        commands.put("help", new CommandInfo("Display help information", this::printHelp, null, 0, "help"));
+        commands.put("login", new CommandInfo("Login to the system", this::login, null, 2, "login <username> <password>"));
+        commands.put("logout", new CommandInfo("Logout from the system", this::logout, null, 0, "logout"));
+        commands.put("additem", new CommandInfo("Add an item to the inventory", this::addItem, "Manager", 5, "additem <name> <category> <unitPrice> <weight> <stock>"));
+        commands.put("setcategorydiscount", new CommandInfo("Set discount for a category", this::setCategoryDiscount, "Manager", 2, "setcategorydiscount <category> <discount>"));
+        commands.put("registercustomer", new CommandInfo("Register a new customer", this::registerCustomer, "Manager", 5, "registercustomer <firstName> <surname> <username> <address> <password>"));
+        commands.put("registermanager", new CommandInfo("Register a new manager", this::registerManager, "Manager", 4, "registermanager <firstName> <surname> <username> <password>"));
+        commands.put("registercashier", new CommandInfo("Register a new cashier", this::registerCashier, "Manager", 4, "registercashier <firstName> <surname> <username> <password>"));
+        commands.put("runtest", new CommandInfo("Run a script file", this::runFile, null, 1, "runtest <filename>"));
+        commands.put("setup", new CommandInfo("Initialize the system", this::setup, "Manager", 0, "setup"));
+        commands.put("subscribetoplan", new CommandInfo("Subscribe to a plan", this::subscribeToPlan, "Customer", 1, "subscribetoplan <plan_id>"));
+        commands.put("requestdelivery", new CommandInfo("Request delivery", this::requestDelivery, "Customer", 0, "requestdelivery"));
+        commands.put("startcheckout", new CommandInfo("Start a checkout session", this::startCheckout, "Cashier", 1, "startcheckout <customerUsername>"));
+        commands.put("scanitem", new CommandInfo("Scan an item", this::scanItem, "Cashier", 2, "scanitem <item_id> <quantity>"));
+        commands.put("computebill", new CommandInfo("Compute the bill", this::computeBill, "Cashier", 0, "computebill"));
+        commands.put("simulatepayment", new CommandInfo("Force next payment outcome", this::simulatePayment, "Cashier", 1, "simulatepayment <SUCCESS|INSUFFICIENT_FUNDS|PIN_WRONG|AUTH_DENIED>"));
+        commands.put("pay", new CommandInfo("Pay the bill", this::pay, "Cashier", 2, "pay <cardNumber> <pin>"));
+        commands.put("showrevenue", new CommandInfo("Show revenue", this::showRevenue, "Manager", 0, "showrevenue"));
+        commands.put("showinventory", new CommandInfo("Show inventory", this::showInventory, "Manager", 0, "showinventory"));
     }
 
     public void run() {
@@ -57,77 +86,31 @@ public class CLI {
         String[] args = new String[parts.length - 1];
         System.arraycopy(parts, 1, args, 0, args.length);
 
-        switch (command) {
-            case "help":
-                printHelp();
-                break;
-            case "login":
-                login(args);
-                break;
-            case "logout":
-                session.logout();
-                System.out.println("Logged out.");
-                break;
-            case "additem":
-                addItem(args);
-                break;
-            case "setcategorydiscount":
-                setCategoryDiscount(args);
-                break;
-            case "registercustomer":
-                registerCustomer(args);
-                break;
-            case "registermanager":
-                registerManager(args);
-                break;
-            case "registercashier":
-                registerCashier(args);
-                break;
-            case "runfile":
-                runFile(args);
-                break;
-            case "setup":
-                supermarket.setup();
-                System.out.println("Supermarket setup completed.");
-                break;
-            case "subscribetoplan":
-                subscribeToPlan(args);
-                break;
-            case "requestdelivery":
-                requestDelivery(args);
-                break;
-            case "startcheckout":
-                startCheckout(args);
-                break;
-            case "scanitem":
-                scanItem(args);
-                break;
-            case "computebill":
-                computeBill(args);
-                break;
-            case "simulatepayment":
-                simulatePayment(args);
-                break;
-            case "pay":
-                pay(args);
-                break;
-            case "showrevenue":
-                showRevenue(args);
-                break;
-            case "showinventory":
-                showInventory(args);
-                break;
-            default:
-                System.out.println("Unknown command: " + command);
+        
+        CommandInfo cmdInfo = commands.get(command);
+        if (cmdInfo != null) {
+            Boolean hasPermission = checkPermission(session, cmdInfo.getRequiredRole(), "execute this command");
+            if (!hasPermission) return;
+
+            Boolean validArgs = checkMinArgsLength(args, cmdInfo.getMinArgs(), cmdInfo.getUsage());
+            if (!validArgs) return;
+
+            try {
+                cmdInfo.getAction().execute(args);
+            } catch (Exception e) {
+                System.out.println("Error executing command: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Unknown command: " + command);
         }
     }
 
-    private void pay(String[] args) {
-        if (!session.isCashier()) {
-            System.out.println("Only cashiers can launch payment.");
-            return;
-        }
+    private void logout(String[] args) {
+        session.logout();
+        System.out.println("Logged out.");
+    }
 
+    private void pay(String[] args) {
         if (!session.hasActiveCheckout()) {
             System.out.println("No active checkout.");
             return;
@@ -135,11 +118,6 @@ public class CLI {
 
         if (!session.hasComputedBill()) {
             System.out.println("Compute the bill before payment.");
-            return;
-        }
-
-        if (args.length < 2) {
-            System.out.println("Usage: pay <cardNumber> <pin>");
             return;
         }
 
@@ -166,21 +144,16 @@ public class CLI {
         session.endCheckout();
     }
 
-    private void showRevenue(String[] args) {
-        if (!session.isManager()) {
-            System.out.println("Only managers can view revenue.");
-            return;
-        }
+    private void setup(String[] args) {
+        supermarket.setup();
+        System.out.println("Supermarket setup completed.");
+    }
 
+    private void showRevenue(String[] args) {
         System.out.println("Total revenue: " + supermarket.getRevenue());
     }
 
     private void showInventory(String[] args) {
-        if (!session.isManager()) {
-            System.out.println("Only managers can view inventory.");
-            return;
-        }
-
         System.out.println("Current inventory:");
         for (Map.Entry<String, Item> entry : supermarket.getInventory().entrySet()) {
             String itemName = entry.getKey();
@@ -190,16 +163,6 @@ public class CLI {
     }
 
     private void simulatePayment(String[] args) {
-        if (!session.isCashier()) {
-            System.out.println("Only cashiers can simulate payments.");
-            return;
-        }
-
-        if (args.length < 1) {
-            System.out.println("Usage: simulatePayment <SUCCESS|INSUFFICIENT_FUNDS|PIN_WRONG|AUTH_DENIED>");
-            return;
-        }
-
         try {
             payment.PaymentOutcome outcome = payment.PaymentOutcome.valueOf(args[0].toUpperCase());
             supermarket.getPosDevice().simulateNextPayment(outcome);
@@ -210,11 +173,6 @@ public class CLI {
     }
 
     private void computeBill(String[] args) {
-        if (!session.isCashier()) {
-            System.out.println("Only cashiers can compute bills.");
-            return;
-        }
-
         if (!session.hasActiveCheckout()) {
             System.out.println("No active checkout. Use startCheckout to begin.");
             return;
@@ -228,16 +186,6 @@ public class CLI {
     }
 
     private void scanItem(String[] args) {
-        if (args.length < 2) {
-            System.out.println("Usage: scanItem <itemName> <quantity>");
-            return;
-        }
-
-        if (!session.isCashier()) {
-            System.out.println("Only cashiers can scan items.");
-            return;
-        }
-
         if (!session.hasActiveCheckout()) {
             System.out.println("No active checkout. Use startCheckout to begin.");
             return;
@@ -252,13 +200,8 @@ public class CLI {
 
         Category cat = supermarket.getItemCategory(itemName);
 
-        int quantity;
-        try {
-            quantity = Integer.parseInt(args[1]);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid quantity. Please enter a valid number.");
-            return;
-        }
+        Integer quantity = parseIntArg(args[1], "quantity");
+        if (quantity == null) return;
 
         if (quantity <= 0) {
             System.out.println("Quantity must be positive.");
@@ -276,16 +219,6 @@ public class CLI {
     }
 
     private void startCheckout(String[] args) {
-        if (args.length < 1) {
-            System.out.println("Usage: startCheckout <customerUsername>");
-            return;
-        }
-
-        if (!session.isCashier()) {
-            System.out.println("Only cashiers can start checkout.");
-            return;
-        }
-
         String customerUsername = args[0];
         User user = supermarket.getUser(customerUsername);
         if (user == null || !(user instanceof Customer)) {
@@ -299,11 +232,6 @@ public class CLI {
     }
 
     private void requestDelivery(String[] args) {
-        if (session.getCurrentUser() == null || !session.getCurrentUser().getRole().equals("Customer")) {
-            System.out.println("Only customers can request deliveries.");
-            return;
-        }
-
         Customer customer = (Customer) session.getCurrentUser();
         customer.requestDelivery();
 
@@ -312,16 +240,6 @@ public class CLI {
     }
 
     private void subscribeToPlan(String[] args) {
-        if (args.length < 1) {
-            System.out.println("Usage: subscribeToPlan <planName>");
-            return;
-        }
-
-        if (session.getCurrentUser() == null || !session.getCurrentUser().getRole().equals("Customer")) {
-            System.out.println("Only customers can subscribe to discount plans.");
-            return;
-        }
-
         String planName = args[0];
 
         Customer customer = (Customer) session.getCurrentUser();
@@ -331,11 +249,6 @@ public class CLI {
     }
 
     private void runFile(String[] args) {
-        if (args.length < 1) {
-            System.out.println("Usage: runFile <filename>");
-            return;
-        }
-
         String filename = args[0];
         try (Scanner fileScanner = new Scanner(new java.io.File(filename))) {
             while (fileScanner.hasNextLine()) {
@@ -351,11 +264,6 @@ public class CLI {
     }
 
     private void registerManager(String[] args) {
-        if (args.length < 4) {
-            System.out.println("Usage: registerManager <firstName> <surname> <password>");
-            return;
-        }
-
         String firstName = args[0];
         String surname = args[1];
         String username = args[2];
@@ -366,16 +274,11 @@ public class CLI {
             return;
         }
 
-        supermarket.addManager(username, firstName, surname, password);
+        supermarket.registerManager(firstName, surname, username, password);
         System.out.println("Registered manager: " + firstName + " " + surname + " (" + username + ")");
     }
 
     private void registerCashier(String[] args) {
-        if (args.length < 4) {
-            System.out.println("Usage: registerCashier <firstName> <surname> <username> <password>");
-            return;
-        }
-
         String firstName = args[0];
         String surname = args[1];
         String username = args[2];
@@ -386,105 +289,48 @@ public class CLI {
             return;
         }
 
-        supermarket.addCashier(username, firstName, surname, password);
+        supermarket.registerCashier(firstName, surname, username, password);
         System.out.println("Registered cashier: " + firstName + " " + surname + " (" + username + ")");
     }
 
     private void registerCustomer(String[] args) {
-        if (args.length < 5) {
-            System.out.println("Usage: registerCustomer <firstName> <surname> <username> <address> <password>");
-            return;
-        }
-
         String firstName = args[0];
         String surname = args[1];
         String username = args[2];
         String address = args[3];
         String password = args[4];
 
-        if (supermarket.userExists(username)) {
-            System.out.println("Username already exists: " + username);
-            return;
-        }
-
-        supermarket.addCustomer(username, firstName, surname, address, password);
+        supermarket.registerCustomer(firstName, surname, username, address, password, "normal");
         System.out.println("Registered customer: " + firstName + " " + surname + " (" + username + ")");
     }
 
     private void setCategoryDiscount(String[] args) {
-        if (args.length < 2) {
-            System.out.println("Usage: setCategoryDiscount <categoryName> <discountPercentage>");
-            return;
-        }
-
-        if (session.getCurrentUser() == null || !session.getCurrentUser().getRole().equals("Manager")) {
-            System.out.println("Only managers can set category discounts.");
-            return;
-        }
-
         String categoryName = args[0];
-        double discountPercentage;
-
-        try {
-            discountPercentage = Double.parseDouble(args[1]);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid discount percentage: " + args[1]);
-            return;
-        }
-
-
-        Category category = supermarket.getCategoryOrCreate(categoryName);
-        category.setPricingPolicy(new discount.PercentageCategoryPricingPolicy(discountPercentage));
+        
+        Double discountPercentage = parseDoubleArg(args[1], "discountPercentage");
+        if (discountPercentage == null) return;
+        
+        supermarket.setCategoryDiscount(categoryName, discountPercentage);
     }
 
     private void addItem(String[] args) {
-        if (args.length < 5) {
-            System.out.println("Usage: addItem <name> <category> <unitPrice> <weight> <stock>");
-            return;
-        }
-
-        if (session.getCurrentUser() == null || !session.getCurrentUser().getRole().equals("Manager")) {
-            System.out.println("Only managers can add items.");
-            return;
-        }
-
         String categoryName = args[1];
         String itemName = args[0];
-        double weight;
-        double price;
-        Integer stock;
 
-        try {
-            price = Double.parseDouble(args[2]);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid price: " + args[2]);
-            return;
-        }
+        Double price = parseDoubleArg(args[2], "unitPrice");
+        if (price == null) return;
 
-        try {
-            weight = Double.parseDouble(args[3]);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid weight: " + args[3]);
-            return;
-        }
+        Double weight = parseDoubleArg(args[3], "weight");
+        if (weight == null) return;
 
-        try {
-            stock = Integer.parseInt(args[4]);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid stock: " + args[4]);
-            return;
-        }
+        Integer stock = parseIntArg(args[4], "stock");
+        if (stock == null) return;
 
-        supermarket.addItem(categoryName, new catalog.Item(itemName, price, weight, stock));
+        supermarket.addItem(categoryName, itemName, price, weight, stock);
         System.out.println("Added item " + itemName + " to category " + categoryName + " with price " + price + ", " + weight + " and stock " + stock);
     }
 
     private void login(String[] args) {
-        if (args.length < 2) {
-            System.out.println("Usage: login <username> <password>");
-            return;
-        }
-
         String name = args[0];
         String password = args[1];
 
@@ -503,23 +349,11 @@ public class CLI {
         }        
     }
 
-    private void printHelp() {
-        System.out.println("Available commands:");
-        System.out.println("  help - Show this help message");
-        System.out.println("  login <username> <password> - Log in as a user");
-        System.out.println("  addItem <name> <category> <unitPrice> <weight> <stock> - Add an item to a category (Manager only)");
-        System.out.println("  setCategoryDiscount <categoryName> <discountPercentage> - Set discount for a category (Manager only)");
-        System.out.println("  registerCashier <firstName> <surname> <username> <password> - Register a cashier");
-        System.out.println("  registerCustomer <firstName> <surname> <username> <address> <password> - Register a customer");
-        System.out.println("  registerManager <firstName> <surname> <username> <password> - Register a manager");
-        System.out.println("  runFile <filename> - Run commands from a file");
-        System.out.println("  setup - Set up the supermarket with initial data");
-        System.out.println("  subscribeToPlan <planName> - Subscribe to a discount plan (Customer only)");
-        System.out.println("  requestDelivery - Request delivery for the current customer (Customer only)");
-        System.out.println("  startCheckout <customerUsername> - Start checkout for a customer (Cashier only)");
-        System.out.println("  scanItem <itemName> <quantity> - Scan an item during checkout (Cashier only)");
-        System.out.println("  computeBill - Compute the total bill for the current checkout (Cashier only)");
-        System.out.println("  stop | exit - Exit the CLI");
+    private void printHelp(String[] args) {
+        for (Map.Entry<String, CommandInfo> entry : commands.entrySet()) {
+            CommandInfo cmdInfo = entry.getValue();
+            System.out.println(cmdInfo.getUsage() + " - " + cmdInfo.getDescription());
+        }
     }
 
     private String[] parseArguments(String input) {
@@ -547,5 +381,42 @@ public class CLI {
         }
 
         return arguments.toArray(new String[0]);
+    }
+
+    private static Double parseDoubleArg(String value, String fieldName) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid " + fieldName + ": " + value);
+            return null;
+        }
+    }
+
+    private static Integer parseIntArg(String value, String fieldName) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid " + fieldName + ": " + value);
+            return null;
+        }
+    }
+
+    private static Boolean checkMinArgsLength(String[] args, Integer minLength, String usage) {
+        if (minLength != null && args.length < minLength) {
+            System.out.println("Usage: " + usage);
+            return false;
+        }
+        return true;
+    }
+
+    private static Boolean checkPermission(Session session, String requiredRole, String actionDescription) {
+        if (requiredRole == null) {
+            return true;
+        }
+        if (session.getCurrentUser() == null || !session.getCurrentUser().getRole().equals(requiredRole)) {
+            System.out.println("Only " + requiredRole.toLowerCase() + "s can " + actionDescription + ".");
+            return false;
+        }
+        return true;
     }
 }

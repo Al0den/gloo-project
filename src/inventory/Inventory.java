@@ -1,11 +1,11 @@
-package catalog;
+package inventory;
 
 import java.util.Map;
 
-public class Catalog {
+public class Inventory {
     private Map<String, Category> categories;
 
-    public Catalog(Map<String, Category> categories) {
+    public Inventory(Map<String, Category> categories) {
         this.categories = categories;
     }
 
