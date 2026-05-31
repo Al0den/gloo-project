@@ -151,16 +151,15 @@ public class Supermarket {
     public Double computeBill(Customer customer, Cart cart) {
         DiscountPolicy discountPolicy = customer.getDiscountPolicy();
 
-        double total = cart.getTotalPrice(discountPolicy);
+        double itemsTotal = cart.getTotalPrice(discountPolicy);
 
+        double deliveryFee = 0.0;
         if (customer.hasRequestedDelivery()) {
             DeliveryRequest deliveryRequest = customer.getDeliveryRequest();
-            double baseDeliveryFee = deliveryFeePolicy.computeFee(cart, total, deliveryRequest);
-            double deliveryFee = customer.getDiscountPolicy().applyDeliveryDiscount(baseDeliveryFee);
-
-            total += deliveryFee;
+            double baseDeliveryFee = deliveryFeePolicy.computeFee(cart, itemsTotal, deliveryRequest);
+            deliveryFee = customer.getDiscountPolicy().applyDeliveryDiscount(baseDeliveryFee);
         }
 
-        return total;
+        return itemsTotal + deliveryFee;
     }
 }
