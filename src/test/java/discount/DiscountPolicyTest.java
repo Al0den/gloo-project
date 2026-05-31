@@ -25,5 +25,10 @@ class DiscountPolicyTest {
         public double applyDeliveryDiscount(double deliveryFee) {
             return deliveryFee / 2.0;
         }
+
+        @Override
+        public double getOneTimeFee() {
+            return 0.0;
+        };
     }
 }

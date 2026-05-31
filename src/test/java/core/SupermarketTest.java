@@ -26,6 +26,21 @@ class SupermarketTest {
     }
 
     @Test
+    void setupRegistersDefaultCashierAndCustomer() {
+        Supermarket supermarket = new Supermarket();
+
+        supermarket.setup();
+        supermarket.setup();
+
+        assertAll(
+                () -> assertTrue(supermarket.userExists("cashier")),
+                () -> assertEquals("Cashier", supermarket.getUser("cashier").getRole()),
+                () -> assertTrue(supermarket.userExists("customer")),
+                () -> assertEquals("Customer", supermarket.getUser("customer").getRole())
+        );
+    }
+
+    @Test
     void registerUsersStoresUsersWithExpectedRoles() {
         Supermarket supermarket = new Supermarket();
 
@@ -68,20 +83,36 @@ class SupermarketTest {
     }
 
     @Test
-    void addItemRejectsMissingCategoryAndDuplicateItem() {
+    void addItemCreatesMissingCategoryAndRejectsDuplicateItem() {
         Supermarket supermarket = new Supermarket();
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> supermarket.addItem("missing", "milk", 1.20, 1.00, 50)
-        );
-
-        supermarket.getCategoryOrCreate("dairy");
         supermarket.addItem("dairy", "milk", 1.20, 1.00, 50);
 
         assertThrows(
                 IllegalArgumentException.class,
                 () -> supermarket.addItem("dairy", "milk", 1.30, 1.10, 20)
+        );
+    }
+
+    @Test
+    void restockIncreasesExistingItemStock() {
+        Supermarket supermarket = new Supermarket();
+        supermarket.addItem("dairy", "milk", 1.20, 1.00, 50);
+
+        supermarket.restock("milk", 25);
+
+        assertEquals(75, supermarket.getItem("milk").getStock());
+    }
+
+    @Test
+    void restockRejectsUnknownItemAndNonPositiveQuantity() {
+        Supermarket supermarket = new Supermarket();
+        supermarket.addItem("dairy", "milk", 1.20, 1.00, 50);
+
+        assertAll(
+                () -> assertThrows(IllegalArgumentException.class, () -> supermarket.restock("missing", 10)),
+                () -> assertThrows(IllegalArgumentException.class, () -> supermarket.restock("milk", 0)),
+                () -> assertThrows(IllegalArgumentException.class, () -> supermarket.restock("milk", -1))
         );
     }
 

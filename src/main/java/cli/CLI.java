@@ -2,31 +2,32 @@ package cli;
 
 import users.User;
 import users.Customer;
-import discount.DiscountPolicyFactory;
+import users.Cart;
 import inventory.Category;
 import inventory.Item;
-import discount.DiscountPolicy;
-import users.Cart;
+import core.Supermarket;
+import delivery.DistanceCalculator;
+import delivery.LevenschteinDistanceCalculator;
 
 import java.util.Scanner;
-
-import core.Supermarket;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-
 public class CLI {
+    private static final String SUPERMARKET_ADDRESS = "14 Mail Pierre Potier, Gif sur Yvette";
+
     private Map<String, CommandInfo> commands;
     private Supermarket supermarket;
     private Session session;
+    private DistanceCalculator distanceCalculator;
 
     public CLI(Supermarket supermarket) {
         this.supermarket = supermarket;
         this.session = new Session();
         this.commands = new HashMap<>();
+        this.distanceCalculator = new LevenschteinDistanceCalculator();
 
         registerCommands();
     }
@@ -36,6 +37,7 @@ public class CLI {
         commands.put("login", new CommandInfo("Login to the system", this::login, null, 2, "login <username> <password>"));
         commands.put("logout", new CommandInfo("Logout from the system", this::logout, null, 0, "logout"));
         commands.put("additem", new CommandInfo("Add an item to the inventory", this::addItem, "Manager", 5, "additem <name> <category> <unitPrice> <weight> <stock>"));
+        commands.put("restock", new CommandInfo("Restock an inventory item", this::restock, "Manager", 2, "restock <itemName> <quantity>"));
         commands.put("setcategorydiscount", new CommandInfo("Set discount for a category", this::setCategoryDiscount, "Manager", 2, "setcategorydiscount <category> <discount>"));
         commands.put("registercustomer", new CommandInfo("Register a new customer", this::registerCustomer, "Manager", 5, "registercustomer <firstName> <surname> <username> <address> <password>"));
         commands.put("registermanager", new CommandInfo("Register a new manager", this::registerManager, "Manager", 4, "registermanager <firstName> <surname> <username> <password>"));
@@ -43,7 +45,7 @@ public class CLI {
         commands.put("runtest", new CommandInfo("Run a script file", this::runFile, null, 1, "runtest <filename>"));
         commands.put("setup", new CommandInfo("Initialize the system", this::setup, "Manager", 0, "setup"));
         commands.put("subscribetoplan", new CommandInfo("Subscribe to a plan", this::subscribeToPlan, "Customer", 1, "subscribetoplan <plan_id>"));
-        commands.put("requestdelivery", new CommandInfo("Request delivery", this::requestDelivery, "Customer", 0, "requestdelivery"));
+        commands.put("requestdelivery", new CommandInfo("Request delivery", this::requestDelivery, "Customer", 1, "requestdelivery <address>"));
         commands.put("startcheckout", new CommandInfo("Start a checkout session", this::startCheckout, "Cashier", 1, "startcheckout <customerUsername>"));
         commands.put("scanitem", new CommandInfo("Scan an item", this::scanItem, "Cashier", 2, "scanitem <item_id> <quantity>"));
         commands.put("computebill", new CommandInfo("Compute the bill", this::computeBill, "Cashier", 0, "computebill"));
@@ -161,7 +163,8 @@ public class CLI {
         for (Map.Entry<String, Item> entry : supermarket.getInventory().entrySet()) {
             String itemName = entry.getKey();
             Item item = entry.getValue();
-            System.out.println(itemName + " - Price: " + item.getPrice() + ", Stock: " + item.getStock());
+            String lowStockMarker = item.getStock() < item.getLowStockThreshold() ? " [LOW STOCK]" : "";
+            System.out.println(itemName + " - Price: " + item.getPrice() + ", Stock: " + item.getStock() + lowStockMarker);
         }
     }
 
@@ -237,34 +240,19 @@ public class CLI {
     }
 
     private void requestDelivery(String[] args) {
-        if (args.length > 1) {
-            requestDeliveryWithDistance(args);
-        } else {
-            String[] newArgs = new String[2];
-            newArgs[0] = args[0];
-            newArgs[1] = "10";
-            requestDeliveryWithDistance(newArgs);
-        }
-    }
-
-    private void requestDeliveryWithDistance(String[] args) {
         Customer customer = (Customer) session.getCurrentUser();
-
         String address = args[0];
-        Double distance = parseDoubleArg(args[1], "distance");
-        if (distance == null) return;
+        double distance = distanceCalculator.calculateDistance(address, SUPERMARKET_ADDRESS);
 
         customer.requestDelivery(address, distance);
-
-        System.out.println("Delivery requested to address: " + address);
+        System.out.println("Delivery requested to address: " + address + ", distance: " + distance + " km");
     }
 
     private void subscribeToPlan(String[] args) {
         String planName = args[0];
-
         Customer customer = (Customer) session.getCurrentUser();
-        DiscountPolicy plan = DiscountPolicyFactory.create(planName);
-        customer.setDiscountPolicy(plan);
+
+        supermarket.subscribeToPlan(customer, planName);
         System.out.println("Subscribed to discount plan: " + planName);
     }
 
@@ -348,6 +336,16 @@ public class CLI {
 
         supermarket.addItem(categoryName, itemName, price, weight, stock);
         System.out.println("Added item " + itemName + " to category " + categoryName + " with price " + price + ", " + weight + " and stock " + stock);
+    }
+
+    private void restock(String[] args) {
+        String itemName = args[0];
+
+        Integer quantity = parseIntArg(args[1], "quantity");
+        if (quantity == null) return;
+
+        supermarket.restock(itemName, quantity);
+        System.out.println("Restocked item " + itemName + " by " + quantity + ". Current stock: " + supermarket.getItem(itemName).getStock());
     }
 
     private void login(String[] args) {

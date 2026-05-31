@@ -4,7 +4,6 @@ import users.User;
 import users.Customer;
 import users.Manager;
 import users.Cashier;
-import discount.DiscountPolicyFactory;
 import inventory.Category;
 import inventory.Inventory;
 import inventory.Item;
@@ -13,6 +12,7 @@ import payment.POSDevice;
 import payment.TransactionSystem;
 import payment.BankCard;
 import discount.DiscountPolicy;
+import discount.DiscountPolicyFactory;
 import delivery.DeliveryFeePolicy;
 import delivery.WeightDistanceDeliveryFee;
 import delivery.DeliveryRequest;
@@ -71,6 +71,14 @@ public class Supermarket {
         getCategoryOrCreate("diary");
         getCategoryOrCreate("fruit-and-vegetables");
         getCategoryOrCreate("meat");
+
+        if (!userExists("cashier")) {
+            registerCashier("Default", "Cashier", "cashier", "cashier");
+        }
+
+        if (!userExists("customer")) {
+            registerCustomer("Default", "Customer", "customer", "1 Main St", "customer", "normal");
+        }
 
         tas.registerCard(new BankCard("4242424242424242", "12345", 1000.0));
         tas.registerCard(new BankCard("1111222233334444", "0000", 5.0));
@@ -135,16 +143,27 @@ public class Supermarket {
     }
 
     public void addItem(String categoryName, String itemName, double price, double weight, int stock) {
-        if (inventory.getCategory(categoryName) == null) {
-            throw new IllegalArgumentException("Category does not exist");
-        }
-
+        this.getCategoryOrCreate(categoryName);
+        
         if (inventory.getItem(categoryName, itemName) != null) {
             throw new IllegalArgumentException("Item already exists in category");
         }
 
         Item item = new Item(itemName, price, weight, stock);
         inventory.addItem(categoryName, item);
+    }
+
+    public void restock(String itemName, int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+
+        Item item = getItem(itemName);
+        if (item == null) {
+            throw new IllegalArgumentException("Item does not exist");
+        }
+
+        item.setStock(item.getStock() + quantity);
     }
 
     public Double computeBill(Customer customer, Cart cart) {
@@ -160,5 +179,15 @@ public class Supermarket {
         }
 
         return itemsTotal + deliveryFee;
+    }
+
+    public void subscribeToPlan(Customer customer, String planName) {
+        DiscountPolicy newPolicy = DiscountPolicyFactory.create(planName);
+
+
+        double oneTimeFee = newPolicy.getOneTimeFee();
+        addRevenue(oneTimeFee); // We currently dont have a way to pay this fee, but we can at least add it to the revenue of the supermarket
+        
+        customer.setDiscountPolicy(newPolicy);
     }
 }

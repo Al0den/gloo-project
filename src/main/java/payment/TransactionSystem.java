@@ -28,4 +28,16 @@ public class TransactionSystem {
         card.debit(amount);
         return new PaymentResult(true, PaymentOutcome.SUCCESS, "Payment accepted.");
     }
+
+    public PaymentResult forcePayment(String cardNumber, double amount) {
+        BankCard card = bankCards.get(cardNumber);
+
+        if (card == null) {
+            return new PaymentResult(false, PaymentOutcome.CARD_NOT_FOUND, "Card not found.");
+        }
+
+        card.debit(amount);
+        return new PaymentResult(true, PaymentOutcome.SUCCESS, "Payment accepted.");
+    }
+
 }

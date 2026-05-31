@@ -6,6 +6,8 @@ public class PrimeDiscountPolicy implements DiscountPolicy {
 
     private static double DELIVERY_DISCOUNT_RATE = 0.50;
 
+    private static double ONE_TIME_FEE = 50.0;
+
     @Override
     public double apply(double total) {
         if (total >= MINIMUM_AMOUNT) {
@@ -19,5 +21,8 @@ public class PrimeDiscountPolicy implements DiscountPolicy {
         return deliveryFee * (1 - DELIVERY_DISCOUNT_RATE);
     }
 
-    
+    @Override
+    public double getOneTimeFee() {
+        return ONE_TIME_FEE;
+    };
 }
