@@ -234,6 +234,12 @@ public class Supermarket {
         Bill bill = computeBill(customer, cart);
 
         payment.PaymentResult result = getPosDevice().processPayment(cardNumber, pin, bill.getFinalAmount());
+        
+        if (customer.hasRequestedDelivery()) {
+            DeliveryRequest request = customer.getDeliveryRequest();
+            double weight = cart.getTotalWeight();
+            deliveryScheduler.bookSlot(request.getSlot().getSlotId(), weight);
+        }
 
         if (!result.isSuccess()) {
             System.out.println(result.getMessage());
@@ -246,6 +252,8 @@ public class Supermarket {
 
         cart.finalizeSale();
         customer.clearDeliveryRequest();
+
+
 
         return bill;
     }

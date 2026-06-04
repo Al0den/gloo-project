@@ -10,11 +10,14 @@ public class Main {
         CLI cli = new CLI(supermarket);
 
         cli.setSilent(true); // Silent to not get intial setup spam
-        cli.runFile(CONFIG_FILE);
+        try {
+            cli.runFile(CONFIG_FILE);
+            System.out.println("Loaded configuration from " + CONFIG_FILE);
+        } catch (Exception e) {
+            System.out.println("Error loading configuration: " + e.getMessage());
+        }
         cli.setSilent(false);
 
-        System.out.println("Loaded configuration from " + CONFIG_FILE);
-        
         cli.run();
     }
 }

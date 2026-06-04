@@ -144,12 +144,21 @@ public class CLI {
             println("No active checkout.");
             return;
         }
+        if(!session.hasComputedBill()) {
+            println("Bill has not been computed yet. Use computebill command first.");
+            return;
+        }
 
         String cardNumber = args[0];
         String pin = args[1];
        
         Bill bill = supermarket.finalizeSale(session.getCheckoutCustomer(), session.getCurrentCart(), cardNumber, pin);
-
+        
+        if (bill == null) {
+            println("Payment failed.");
+            return;
+        }
+        
         println(bill.toString());
 
         session.endCheckout();
@@ -196,6 +205,8 @@ public class CLI {
         Bill bill = supermarket.computeBill(customer, cart);
 
         println(bill.toString());
+
+        session.setBillGenerated(true);
     }
 
     private void scanItem(String[] args) {
@@ -229,6 +240,8 @@ public class CLI {
 
         session.getCurrentCart().addItem(item, cat, quantity);
         println("Scanned item: " + item.getName() + " - Price: " + item.getPrice() * quantity);
+
+        session.setBillGenerated(false);
     }
 
     private void registerCard(String[] args) {
@@ -268,6 +281,8 @@ public class CLI {
         }
 
         println("Delivery requested to " + address + " at " + time);
+
+        session.setBillGenerated(false);
     }
 
     private void subscribeToPlan(String[] args) {
@@ -276,6 +291,8 @@ public class CLI {
 
         supermarket.subscribeToPlan(customer, planName);
         println("Subscribed to discount plan: " + planName);
+
+        session.setBillGenerated(false);
     }
 
     private void registerManager(String[] args) {
@@ -326,6 +343,8 @@ public class CLI {
         if (discountPercentage == null) return;
         
         supermarket.setCategoryDiscount(categoryName, discountPercentage);
+
+        session.setBillGenerated(false);
     }
 
     private void addItem(String[] args) {
@@ -343,6 +362,8 @@ public class CLI {
 
         supermarket.addItem(categoryName, itemName, price, weight, stock);
         println("Added item " + itemName + " to category " + categoryName + " with price " + price + ", " + weight + " and stock " + stock);
+
+        session.setBillGenerated(false);
     }
 
     private void restock(String[] args) {

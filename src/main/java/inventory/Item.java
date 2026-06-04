@@ -16,6 +16,19 @@ public class Item {
     private List<StockObserver> stockObservers;
 
     public Item(String name, double price, double weight, Integer stock) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Item name cannot be empty");
+        }
+        if (price < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
+        }
+        if (weight < 0) {
+            throw new IllegalArgumentException("Weight cannot be negative");
+        }
+        if (stock == null || stock < 0) {
+            throw new IllegalArgumentException("Stock cannot be negative");
+        }
+        
         this.name = name;
         this.price = price;
         this.weight = weight;

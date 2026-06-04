@@ -11,12 +11,22 @@ public class Session {
     private Customer checkoutCustomer;
     private Cart currentCart;
 
+    private boolean billGenerated = false;
+
     public boolean isLoggedIn() {
         return currentUser != null;
     }
 
     public User getCurrentUser() {
         return currentUser;
+    }
+
+    public boolean hasComputedBill() {
+        return billGenerated;
+    }
+
+    public void setBillGenerated(boolean generated) {
+        this.billGenerated = generated;
     }
 
     public void login(User user) {
