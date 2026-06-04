@@ -258,11 +258,6 @@ public class CLI {
     }
 
     private void startCheckout(String[] args) {
-        if (session.hasActiveCheckout()) {
-            println("A checkout session is already active. Please complete it before starting a new one.");
-            return;
-        }
-        
         String customerUsername = args[0];
         User user = supermarket.getUser(customerUsername);
 

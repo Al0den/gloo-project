@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 class POSDeviceTest {
+    private static final double EPSILON = 0.0001;
+
     @Test
     void processPaymentDelegatesToTransactionSystemByDefault() {
         TransactionSystem transactionSystem = new TransactionSystem();
@@ -45,5 +47,35 @@ class POSDeviceTest {
 
         assertFalse(result.isSuccess());
         assertEquals(PaymentOutcome.AUTH_DENIED, result.getOutcome());
+    }
+
+    @Test
+    void forcedFailureDoesNotDebitCard() {
+        TransactionSystem transactionSystem = new TransactionSystem();
+        BankCard card = new BankCard("1234", "0000", 100.0);
+        transactionSystem.registerCard(card);
+        POSDevice posDevice = new POSDevice(transactionSystem);
+
+        posDevice.simulateNextPayment(PaymentOutcome.PIN_WRONG);
+        PaymentResult result = posDevice.processPayment("1234", "0000", 20.0);
+
+        assertFalse(result.isSuccess());
+        assertEquals(PaymentOutcome.PIN_WRONG, result.getOutcome());
+        assertEquals(100.0, card.getBalance(), EPSILON);
+    }
+
+    @Test
+    void forcedSuccessStillChecksRealCardAndPinBeforeDebiting() {
+        TransactionSystem transactionSystem = new TransactionSystem();
+        BankCard card = new BankCard("1234", "0000", 100.0);
+        transactionSystem.registerCard(card);
+        POSDevice posDevice = new POSDevice(transactionSystem);
+
+        posDevice.simulateNextPayment(PaymentOutcome.SUCCESS);
+        PaymentResult result = posDevice.processPayment("1234", "9999", 20.0);
+
+        assertFalse(result.isSuccess());
+        assertEquals(PaymentOutcome.PIN_WRONG, result.getOutcome());
+        assertEquals(100.0, card.getBalance(), EPSILON);
     }
 }

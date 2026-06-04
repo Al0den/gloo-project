@@ -1,6 +1,7 @@
 package users;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import discount.NormalDiscountPolicy;
 import discount.PrimeDiscountPolicy;
@@ -32,6 +33,16 @@ class CartTest {
     }
 
     @Test
+    void addItemRejectsNonPositiveQuantity() {
+        Cart cart = new Cart();
+        Category dairy = new Category();
+        Item milk = new Item("milk", 2.0, 1.5, 10);
+
+        assertThrows(IllegalArgumentException.class, () -> cart.addItem(milk, dairy, 0));
+        assertThrows(IllegalArgumentException.class, () -> cart.addItem(milk, dairy, -1));
+    }
+
+    @Test
     void addingSameItemTwiceAccumulatesQuantity() {
         Cart cart = new Cart();
         Category dairy = new Category();
@@ -54,6 +65,19 @@ class CartTest {
         cart.addItem(steak, meat, 2);
 
         assertEquals(43.2, cart.computeTotalAndFillBill(new PrimeDiscountPolicy(), bill()), EPSILON);
+    }
+
+    @Test
+    void computeTotalAlsoStoresTotalInBill() {
+        Cart cart = new Cart();
+        Category dairy = new Category();
+        Item milk = new Item("milk", 2.0, 1.5, 10);
+        Bill bill = bill();
+
+        cart.addItem(milk, dairy, 3);
+        cart.computeTotalAndFillBill(new NormalDiscountPolicy(), bill);
+
+        assertEquals(6.0, bill.getFinalAmount(), EPSILON);
     }
 
     @Test

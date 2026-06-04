@@ -35,6 +35,28 @@ class CategoryTest {
     }
 
     @Test
+    void setPriceOnMissingItemDoesNothing() {
+        Category category = new Category();
+        Item milk = new Item("milk", 1.5, 1.0, 10);
+        category.addItem(milk);
+
+        category.setPrice("missing", 2.0);
+
+        assertEquals(1.5, milk.getPrice(), EPSILON);
+    }
+
+    @Test
+    void getItemsReturnsCopyOfItems() {
+        Category category = new Category();
+        Item milk = new Item("milk", 1.5, 1.0, 10);
+        category.addItem(milk);
+
+        category.getItems().clear();
+
+        assertSame(milk, category.getItem("milk"));
+    }
+
+    @Test
     void categoryCanUseCustomPricingPolicy() {
         Category category = new Category();
         Item apple = new Item("apple", 1.0, 0.2, 10);

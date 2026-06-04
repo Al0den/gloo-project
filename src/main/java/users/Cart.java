@@ -33,6 +33,10 @@ public class Cart {
     }
 
     public void addItem(Item item, Category category, int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+
         if (!items.containsKey(category)) {
             items.put(category, new HashMap<>());
         }

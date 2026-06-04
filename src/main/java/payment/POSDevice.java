@@ -17,7 +17,7 @@ public class POSDevice {
             PaymentResult result;
             switch (forcedOutcome) {
                 case SUCCESS:
-                    result = transactionSystem.forcePayment(cardNumber, amount);
+                    result = transactionSystem.authorize(cardNumber, pin, amount);
                     break;
                 case CARD_NOT_FOUND:
                     result = new PaymentResult(false, PaymentOutcome.CARD_NOT_FOUND, "Card not found.");

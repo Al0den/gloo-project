@@ -77,6 +77,31 @@ class SessionTest {
     }
 
     @Test
+    void startCheckoutRejectsSecondActiveCheckout() {
+        Session session = new Session();
+        Customer customer = new Customer("customer", "Carol", "Buyer", "1 Main St", "pwd", new NormalDiscountPolicy());
+        Customer otherCustomer = new Customer("other", "Other", "Buyer", "2 Main St", "pwd", new NormalDiscountPolicy());
+
+        session.login(new Cashier("cashier", "Bob", "Till", "pwd"));
+        session.startCheckout(customer);
+
+        assertThrows(IllegalStateException.class, () -> session.startCheckout(otherCustomer));
+        assertSame(customer, session.getCheckoutCustomer());
+    }
+
+    @Test
+    void startCheckoutClearsOldComputedBillFlag() {
+        Session session = new Session();
+        Customer customer = new Customer("customer", "Carol", "Buyer", "1 Main St", "pwd", new NormalDiscountPolicy());
+
+        session.login(new Cashier("cashier", "Bob", "Till", "pwd"));
+        session.setBillGenerated(true);
+        session.startCheckout(customer);
+
+        assertFalse(session.hasComputedBill());
+    }
+
+    @Test
     void startCheckoutRejectsNonCashier() {
         Session session = new Session();
         session.login(new Manager("manager", "Alice", "Boss", "pwd"));

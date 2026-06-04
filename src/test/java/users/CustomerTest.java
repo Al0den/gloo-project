@@ -2,6 +2,7 @@ package users;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -44,5 +45,17 @@ class CustomerTest {
         assertEquals("2 Delivery St", customer.getDeliveryRequest().getAddress());
         assertEquals(12.5, customer.getDeliveryRequest().getDistanceKm());
         assertSame(slot, customer.getDeliveryRequest().getSlot());
+    }
+
+    @Test
+    void clearDeliveryRequestRemovesDeliveryInformation() {
+        Customer customer = new Customer("alice", "Alice", "Martin", "1 Main St", "pwd", new NormalDiscountPolicy());
+        DeliverySlot slot = new DeliverySlot("morning", 8, 12, 100.0, false, false);
+        customer.requestDelivery("2 Delivery St", 12.5, slot);
+
+        customer.clearDeliveryRequest();
+
+        assertFalse(customer.hasRequestedDelivery());
+        assertNull(customer.getDeliveryRequest());
     }
 }

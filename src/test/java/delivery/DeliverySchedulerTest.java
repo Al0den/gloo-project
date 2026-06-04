@@ -27,4 +27,13 @@ class DeliverySchedulerTest {
         assertEquals(12.5, scheduler.getSlot("morning").getBookedWeightKg());
         assertThrows(IllegalArgumentException.class, () -> scheduler.getSlot("night"));
     }
+
+    @Test
+    void getSlotsReturnsCopyOfSlotMap() {
+        DeliveryScheduler scheduler = new DeliveryScheduler();
+
+        scheduler.getSlots().clear();
+
+        assertEquals("morning", scheduler.getSlot("morning").getSlotId());
+    }
 }

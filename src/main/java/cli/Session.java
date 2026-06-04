@@ -67,8 +67,13 @@ public class Session {
             throw new IllegalStateException("Only a cashier can start checkout");
         }
 
+        if (hasActiveCheckout()) {
+            throw new IllegalStateException("A checkout is already active");
+        }
+
         this.checkoutCustomer = customer;
         this.currentCart = new Cart();
+        this.billGenerated = false;
     }
 
     public boolean hasActiveCheckout() {

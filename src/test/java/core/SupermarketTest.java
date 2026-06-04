@@ -2,13 +2,16 @@ package core;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import inventory.Category;
 import inventory.Item;
+import payment.BankCard;
 import payment.Bill;
 import users.Cart;
 import users.Customer;
@@ -118,6 +121,13 @@ class SupermarketTest {
     }
 
     @Test
+    void setCategoryDiscountRejectsMissingCategory() {
+        Supermarket supermarket = new Supermarket();
+
+        assertThrows(IllegalArgumentException.class, () -> supermarket.setCategoryDiscount("missing", 10.0));
+    }
+
+    @Test
     void addRevenueAccumulatesRevenue() {
         Supermarket supermarket = new Supermarket();
 
@@ -125,6 +135,29 @@ class SupermarketTest {
         supermarket.addRevenue(4.25);
 
         assertEquals(14.75, supermarket.getRevenue(), EPSILON);
+    }
+
+    @Test
+    void subscribeToPlanChangesCustomerPlanAndAddsFeeToRevenue() {
+        Supermarket supermarket = new Supermarket();
+        supermarket.registerCustomer("Carol", "Buyer", "carol", "1 Main St", "pwd", "normal");
+        Customer customer = (Customer) supermarket.getUser("carol");
+
+        supermarket.subscribeToPlan(customer, "prime");
+
+        assertEquals(50.0, supermarket.getRevenue(), EPSILON);
+        assertEquals(80.0, customer.getDiscountPolicy().apply(100.0), EPSILON);
+    }
+
+    @Test
+    void requestDeliveryRejectsInvalidTimeAndKeepsCustomerWithoutDelivery() {
+        Supermarket supermarket = new Supermarket();
+        supermarket.registerCustomer("Carol", "Buyer", "carol", "1 Main St", "pwd", "normal");
+        Customer customer = (Customer) supermarket.getUser("carol");
+
+        assertThrows(IllegalArgumentException.class, () -> supermarket.requestDelivery(customer, "1 Main St", "night"));
+
+        assertFalse(customer.hasRequestedDelivery());
     }
 
     @Test
@@ -144,5 +177,59 @@ class SupermarketTest {
         Bill bill = supermarket.computeBill(customer, cart);
 
         assertEquals(51.78, bill.getFinalAmount(), EPSILON);
+    }
+
+    @Test
+    void finalizeSaleChargesExactFinalAmountAndUpdatesSaleState() {
+        Supermarket supermarket = new Supermarket();
+        supermarket.addItem("dairy", "milk", 10.00, 2.00, 10);
+        supermarket.setCategoryDiscount("dairy", 10.0);
+        supermarket.registerCustomer("Carol", "Buyer", "carol", "1 Main St", "pwd", "prime");
+
+        Customer customer = (Customer) supermarket.getUser("carol");
+        customer.requestDelivery("1 Main St", 5.0, supermarket.getDeliveryScheduler().getSlot("morning"));
+
+        Cart cart = new Cart();
+        cart.addItem(supermarket.getItem("milk"), supermarket.getItemCategory("milk"), 6);
+
+        BankCard card = new BankCard("1234", "0000", 100.0);
+        supermarket.getTransactionSystem().registerCard(card);
+
+        Bill bill = supermarket.finalizeSale(customer, cart, "1234", "0000");
+
+        assertNotNull(bill);
+        assertEquals(51.78, bill.getFinalAmount(), EPSILON);
+        assertEquals(48.22, card.getBalance(), EPSILON);
+        assertEquals(51.78, supermarket.getRevenue(), EPSILON);
+        assertEquals(4, supermarket.getItem("milk").getStock());
+        assertEquals(12.0, supermarket.getDeliveryScheduler().getSlot("morning").getBookedWeightKg(), EPSILON);
+        assertFalse(customer.hasRequestedDelivery());
+        assertEquals(0.0, cart.getTotalWeight(), EPSILON);
+    }
+
+    @Test
+    void finalizeSaleWithWrongPinDoesNotChangeMoneyStockOrDelivery() {
+        Supermarket supermarket = new Supermarket();
+        supermarket.addItem("dairy", "milk", 10.00, 2.00, 10);
+        supermarket.registerCustomer("Carol", "Buyer", "carol", "1 Main St", "pwd", "normal");
+
+        Customer customer = (Customer) supermarket.getUser("carol");
+        customer.requestDelivery("1 Main St", 5.0, supermarket.getDeliveryScheduler().getSlot("morning"));
+
+        Cart cart = new Cart();
+        cart.addItem(supermarket.getItem("milk"), supermarket.getItemCategory("milk"), 2);
+
+        BankCard card = new BankCard("1234", "0000", 100.0);
+        supermarket.getTransactionSystem().registerCard(card);
+
+        Bill bill = supermarket.finalizeSale(customer, cart, "1234", "9999");
+
+        assertNull(bill);
+        assertEquals(100.0, card.getBalance(), EPSILON);
+        assertEquals(0.0, supermarket.getRevenue(), EPSILON);
+        assertEquals(10, supermarket.getItem("milk").getStock());
+        assertEquals(0.0, supermarket.getDeliveryScheduler().getSlot("morning").getBookedWeightKg(), EPSILON);
+        assertTrue(customer.hasRequestedDelivery());
+        assertEquals(4.0, cart.getTotalWeight(), EPSILON);
     }
 }

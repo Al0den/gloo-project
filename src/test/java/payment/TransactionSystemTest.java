@@ -57,4 +57,27 @@ class TransactionSystemTest {
         assertEquals(PaymentOutcome.INSUFFICIENT_FUNDS, result.getOutcome());
         assertEquals(10.0, card.getBalance(), EPSILON);
     }
+
+    @Test
+    void forcePaymentDebitsRegisteredCardWithoutPin() {
+        TransactionSystem transactionSystem = new TransactionSystem();
+        BankCard card = new BankCard("1234", "0000", 100.0);
+        transactionSystem.registerCard(card);
+
+        PaymentResult result = transactionSystem.forcePayment("1234", 25.5);
+
+        assertTrue(result.isSuccess());
+        assertEquals(PaymentOutcome.SUCCESS, result.getOutcome());
+        assertEquals(74.5, card.getBalance(), EPSILON);
+    }
+
+    @Test
+    void forcePaymentRejectsUnknownCard() {
+        TransactionSystem transactionSystem = new TransactionSystem();
+
+        PaymentResult result = transactionSystem.forcePayment("missing", 10.0);
+
+        assertFalse(result.isSuccess());
+        assertEquals(PaymentOutcome.CARD_NOT_FOUND, result.getOutcome());
+    }
 }
