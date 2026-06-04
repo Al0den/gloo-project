@@ -17,18 +17,14 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class CLI {
-    private static final String SUPERMARKET_ADDRESS = "14 Mail Pierre Potier, Gif sur Yvette";
-
     private Map<String, CommandInfo> commands;
     private Supermarket supermarket;
     private Session session;
-    private DistanceCalculator distanceCalculator;
 
     public CLI(Supermarket supermarket) {
         this.supermarket = supermarket;
         this.session = new Session();
         this.commands = new HashMap<>();
-        this.distanceCalculator = new LevenschteinDistanceCalculator();
 
         registerCommands();
     }
@@ -230,6 +226,7 @@ public class CLI {
     private void startCheckout(String[] args) {
         String customerUsername = args[0];
         User user = supermarket.getUser(customerUsername);
+        
         if (user == null || !(user instanceof Customer)) {
             System.out.println("Customer not found: " + customerUsername);
             return;
@@ -245,23 +242,14 @@ public class CLI {
         String address = args[0];
         String time = args.length >= 2 ? args[1] : "morning";
 
-        if (!time.equals("morning") && !time.equals("lunch") && !time.equals("afternoon") && !time.equals("evening")) {
-            System.out.println("Invalid delivery time: " + time + ". Valid options are: morning, lunch, afternoon, evening.");
-            return;
-        }
-
-        double distance = distanceCalculator.calculateDistance(address, SUPERMARKET_ADDRESS);
-
-        DeliverySlot slot;
         try {
-            slot = supermarket.getDeliveryScheduler().getSlot(time);
+            supermarket.requestDelivery(customer, address, time);
         } catch (IllegalArgumentException e) {
-            System.out.println("Invalid delivery slot: " + time);
+            System.out.println(e.getMessage());
             return;
         }
 
-        customer.requestDelivery(address, distance, slot);
-        System.out.println("Delivery requested to address: " + address + ", distance: " + distance + " km");
+        System.out.println("Delivery requested to " + address + " at " + time);
     }
 
     private void subscribeToPlan(String[] args) {

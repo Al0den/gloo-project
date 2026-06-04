@@ -17,11 +17,17 @@ import delivery.DeliveryFeePolicy;
 import delivery.WeightDistanceDeliveryFee;
 import delivery.DeliveryRequest;
 import delivery.DeliveryScheduler;
+import delivery.DeliverySlot;
+import delivery.DistanceCalculator;
+import delivery.LevenschteinDistanceCalculator;
 
 import java.util.Map;
 import java.util.HashMap;
 
 public class Supermarket {
+    private static final String SUPERMARKET_ADDRESS = "14 Mail Pierre Potier, Gif sur Yvette";
+
+    private DistanceCalculator distanceCalculator;
     private Map<String, User> users; //username -> User
     private Inventory inventory;
 
@@ -36,6 +42,7 @@ public class Supermarket {
         users = new HashMap<>();
         inventory = new Inventory(new HashMap<>());
         deliveryScheduler = new DeliveryScheduler();
+        distanceCalculator = new LevenschteinDistanceCalculator();
 
         tas = new TransactionSystem();
         pos = new POSDevice(tas);
@@ -196,5 +203,22 @@ public class Supermarket {
 
     public DeliveryScheduler getDeliveryScheduler() {
         return deliveryScheduler;
+    }
+
+    public void requestDelivery(Customer customer, String address, String time) {
+        if (!time.equals("morning") && !time.equals("lunch") && !time.equals("afternoon") && !time.equals("evening")) {
+            throw new IllegalArgumentException("Invalid delivery time: " + time + ". Valid options are: morning, lunch, afternoon, evening.");
+        }
+
+        double distance = distanceCalculator.calculateDistance(address, SUPERMARKET_ADDRESS);
+
+        DeliverySlot slot;
+        try {
+            slot = deliveryScheduler.getSlot(time);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid delivery time: " + time + ". Valid options are: morning, lunch, afternoon, evening.");
+        }
+
+        customer.requestDelivery(address, distance, slot);
     }
 }
