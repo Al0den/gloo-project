@@ -181,6 +181,15 @@ public class Supermarket {
         item.setStock(item.getStock() + quantity);
     }
 
+    public void setLowStockThreshold(String itemName, int threshold) {
+        Item item = getItem(itemName);
+        if (item == null) {
+            throw new IllegalArgumentException("Item does not exist");
+        }
+
+        item.setLowStockThreshold(threshold);
+    }
+
     public Bill computeBill(Customer customer, Cart cart) {
         Bill bill = new Bill(customer);
         DiscountPolicy discountPolicy = customer.getDiscountPolicy();

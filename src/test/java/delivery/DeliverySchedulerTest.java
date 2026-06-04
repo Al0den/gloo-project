@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class DeliverySchedulerTest {
     @Test
-    void schedulerProvidesDefaultSlotsWithExpectedFlags() {
+    void defaultSlots() {
         DeliveryScheduler scheduler = new DeliveryScheduler();
 
         assertFalse(scheduler.getSlot("morning").isPeakHour());
@@ -19,7 +19,7 @@ class DeliverySchedulerTest {
     }
 
     @Test
-    void schedulerBooksSlotsAndRejectsUnknownSlot() {
+    void bookSlot() {
         DeliveryScheduler scheduler = new DeliveryScheduler();
 
         scheduler.bookSlot("morning", 12.5);
@@ -29,7 +29,7 @@ class DeliverySchedulerTest {
     }
 
     @Test
-    void getSlotsReturnsCopyOfSlotMap() {
+    void slotsCopy() {
         DeliveryScheduler scheduler = new DeliveryScheduler();
 
         scheduler.getSlots().clear();

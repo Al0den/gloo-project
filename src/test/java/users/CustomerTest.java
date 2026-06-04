@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 class CustomerTest {
     @Test
-    void customerHasCustomerRoleAndInitialPlan() {
+    void customerPlan() {
         NormalDiscountPolicy plan = new NormalDiscountPolicy();
         Customer customer = new Customer("alice", "Alice", "Martin", "1 Main St", "pwd", plan);
 
@@ -23,7 +23,7 @@ class CustomerTest {
     }
 
     @Test
-    void customerCanChangeDiscountPlan() {
+    void changePlan() {
         Customer customer = new Customer("alice", "Alice", "Martin", "1 Main St", "pwd", new NormalDiscountPolicy());
         PlatinumDiscountPolicy newPlan = new PlatinumDiscountPolicy();
 
@@ -33,7 +33,7 @@ class CustomerTest {
     }
 
     @Test
-    void requestDeliveryStoresDeliveryInformation() {
+    void requestDelivery() {
         Customer customer = new Customer("alice", "Alice", "Martin", "1 Main St", "pwd", new NormalDiscountPolicy());
         DeliverySlot slot = new DeliverySlot("morning", 8, 12, 100.0, false, false);
 
@@ -48,7 +48,7 @@ class CustomerTest {
     }
 
     @Test
-    void clearDeliveryRequestRemovesDeliveryInformation() {
+    void clearDelivery() {
         Customer customer = new Customer("alice", "Alice", "Martin", "1 Main St", "pwd", new NormalDiscountPolicy());
         DeliverySlot slot = new DeliverySlot("morning", 8, 12, 100.0, false, false);
         customer.requestDelivery("2 Delivery St", 12.5, slot);

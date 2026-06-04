@@ -11,7 +11,7 @@ class NormalCategoryPricingPolicyTest {
     private static final double EPSILON = 0.0001;
 
     @Test
-    void normalCategoryPolicyMultipliesUnitPriceByQuantity() {
+    void normalCategory() {
         NormalCategoryPricingPolicy policy = new NormalCategoryPricingPolicy();
         Item item = new Item("milk", 2.0, 1.0, 10);
 

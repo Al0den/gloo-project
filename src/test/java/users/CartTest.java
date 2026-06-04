@@ -21,7 +21,7 @@ class CartTest {
     }
 
     @Test
-    void addItemComputesTotalPriceAndWeight() {
+    void addItemTotal() {
         Cart cart = new Cart();
         Category dairy = new Category();
         Item milk = new Item("milk", 2.0, 1.5, 10);
@@ -33,7 +33,7 @@ class CartTest {
     }
 
     @Test
-    void addItemRejectsNonPositiveQuantity() {
+    void badQuantity() {
         Cart cart = new Cart();
         Category dairy = new Category();
         Item milk = new Item("milk", 2.0, 1.5, 10);
@@ -43,7 +43,7 @@ class CartTest {
     }
 
     @Test
-    void addingSameItemTwiceAccumulatesQuantity() {
+    void sameItemTwice() {
         Cart cart = new Cart();
         Category dairy = new Category();
         Item yogurt = new Item("yogurt", 1.0, 0.2, 20);
@@ -56,7 +56,7 @@ class CartTest {
     }
 
     @Test
-    void totalPriceUsesCategoryPolicyThenCustomerPlan() {
+    void totalDiscount() {
         Cart cart = new Cart();
         Category meat = new Category();
         meat.setPricingPolicy(new PercentageCategoryPricingPolicy(10.0));
@@ -68,7 +68,7 @@ class CartTest {
     }
 
     @Test
-    void computeTotalAlsoStoresTotalInBill() {
+    void billTotal() {
         Cart cart = new Cart();
         Category dairy = new Category();
         Item milk = new Item("milk", 2.0, 1.5, 10);
@@ -81,7 +81,7 @@ class CartTest {
     }
 
     @Test
-    void finalizeSaleDecreasesStockAndEmptiesCart() {
+    void finalizeCart() {
         Cart cart = new Cart();
         Category dairy = new Category();
         Item cheese = new Item("cheese", 4.0, 0.3, 10);

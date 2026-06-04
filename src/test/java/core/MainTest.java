@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 class MainTest {
     @Test
-    void mainStartsCliAndCanExit() {
+    void mainExit() {
         InputStream originalIn = System.in;
         PrintStream originalOut = System.out;
         ByteArrayOutputStream output = new ByteArrayOutputStream();

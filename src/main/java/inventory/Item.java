@@ -97,6 +97,9 @@ public class Item {
     }
 
     public void setLowStockThreshold(int threshold) {
+        if (threshold < 0) {
+            throw new IllegalArgumentException("Threshold cannot be negative");
+        }
         this.lowStockThreshold = threshold;
     }
 

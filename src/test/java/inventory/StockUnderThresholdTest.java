@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class StockUnderThresholdTest {
     @Test
-    void onStockUpdatePrintsWarningWhenStockIsBelowThreshold() {
+    void lowStockWarning() {
         Item item = new Item("milk", 1.5, 1.0, 4);
         StockUnderThreshold observer = new StockUnderThreshold();
         ByteArrayOutputStream output = new ByteArrayOutputStream();

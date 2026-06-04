@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 class ManagerTest {
     @Test
-    void managerHasManagerRoleAndCanLoginWithPassword() {
+    void managerLogin() {
         Manager manager = new Manager("manager1", "Claire", "Boss", "admin");
 
         assertEquals("Manager", manager.getRole());

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 class DeliveryFeePolicyTest {
     @Test
-    void deliveryFeePolicyCanBeImplementedByAnotherClass() {
+    void policyImpl() {
         DeliveryFeePolicy policy = new FixedFeePolicy();
         DeliverySlot slot = new DeliverySlot("morning", 8, 12, 100.0, false, false);
 

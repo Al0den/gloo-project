@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 class StockObserverTest {
     @Test
-    void stockObserverCanReactToItemUpdates() {
+    void observerWorks() {
         Item item = new Item("milk", 1.5, 1.0, 10);
         TestObserver observer = new TestObserver();
 

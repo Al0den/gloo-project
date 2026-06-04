@@ -12,7 +12,7 @@ class PercentageCategoryPricingPolicyTest {
     private static final double EPSILON = 0.0001;
 
     @Test
-    void percentagePolicyAppliesCategoryDiscount() {
+    void percentDiscount() {
         PercentageCategoryPricingPolicy policy = new PercentageCategoryPricingPolicy(10.0);
         Item item = new Item("apple", 1.0, 0.2, 10);
 
@@ -20,7 +20,7 @@ class PercentageCategoryPricingPolicyTest {
     }
 
     @Test
-    void percentagePolicyRejectsInvalidDiscounts() {
+    void badPercent() {
         assertThrows(IllegalArgumentException.class, () -> new PercentageCategoryPricingPolicy(-1.0));
         assertThrows(IllegalArgumentException.class, () -> new PercentageCategoryPricingPolicy(101.0));
     }

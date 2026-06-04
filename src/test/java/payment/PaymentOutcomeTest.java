@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 class PaymentOutcomeTest {
     @Test
-    void enumContainsExpectedPaymentOutcomes() {
+    void outcomes() {
         assertEquals(PaymentOutcome.SUCCESS, PaymentOutcome.valueOf("SUCCESS"));
         assertEquals(PaymentOutcome.INSUFFICIENT_FUNDS, PaymentOutcome.valueOf("INSUFFICIENT_FUNDS"));
         assertEquals(PaymentOutcome.PIN_WRONG, PaymentOutcome.valueOf("PIN_WRONG"));

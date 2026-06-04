@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class DeliverySlotTest {
     @Test
-    void slotStoresTimeWindowFlagsAndBookedWeight() {
+    void slotData() {
         DeliverySlot slot = new DeliverySlot("lunch", 12, 14, 100.0, true, false);
 
         assertEquals("lunch", slot.getSlotId());
@@ -21,7 +21,7 @@ class DeliverySlotTest {
     }
 
     @Test
-    void bookAddsWeightUntilCapacityIsExceeded() {
+    void bookWeight() {
         DeliverySlot slot = new DeliverySlot("morning", 8, 12, 10.0, false, false);
 
         slot.book(6.0);

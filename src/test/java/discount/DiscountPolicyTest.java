@@ -8,7 +8,7 @@ class DiscountPolicyTest {
     private static final double EPSILON = 0.0001;
 
     @Test
-    void discountPolicyCanBeImplementedByAnotherClass() {
+    void policyImpl() {
         DiscountPolicy policy = new FixedDiscountPolicy();
 
         assertEquals(90.0, policy.apply(100.0), EPSILON);

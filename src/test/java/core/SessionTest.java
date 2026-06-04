@@ -16,7 +16,7 @@ import cli.Session;
 
 class SessionTest {
     @Test
-    void loginAndLogoutUpdateCurrentUser() {
+    void loginLogout() {
         Session session = new Session();
         Manager manager = new Manager("manager", "Alice", "Boss", "pwd");
 
@@ -32,7 +32,7 @@ class SessionTest {
     }
 
     @Test
-    void loginRejectsSecondUserWhileAlreadyLoggedIn() {
+    void doubleLogin() {
         Session session = new Session();
         session.login(new Manager("manager", "Alice", "Boss", "pwd"));
 
@@ -43,7 +43,7 @@ class SessionTest {
     }
 
     @Test
-    void roleHelpersIdentifyCurrentUserType() {
+    void roles() {
         Session session = new Session();
         Customer customer = new Customer("customer", "Carol", "Buyer", "1 Main St", "pwd", new NormalDiscountPolicy());
 
@@ -55,7 +55,7 @@ class SessionTest {
     }
 
     @Test
-    void getLoggedCustomerRejectsNonCustomer() {
+    void notCustomer() {
         Session session = new Session();
         session.login(new Cashier("cashier", "Bob", "Till", "pwd"));
 
@@ -63,7 +63,7 @@ class SessionTest {
     }
 
     @Test
-    void startCheckoutRequiresCashierAndCreatesCart() {
+    void startCheckout() {
         Session session = new Session();
         Cashier cashier = new Cashier("cashier", "Bob", "Till", "pwd");
         Customer customer = new Customer("customer", "Carol", "Buyer", "1 Main St", "pwd", new NormalDiscountPolicy());
@@ -77,7 +77,7 @@ class SessionTest {
     }
 
     @Test
-    void startCheckoutRejectsSecondActiveCheckout() {
+    void secondCheckout() {
         Session session = new Session();
         Customer customer = new Customer("customer", "Carol", "Buyer", "1 Main St", "pwd", new NormalDiscountPolicy());
         Customer otherCustomer = new Customer("other", "Other", "Buyer", "2 Main St", "pwd", new NormalDiscountPolicy());
@@ -90,7 +90,7 @@ class SessionTest {
     }
 
     @Test
-    void startCheckoutClearsOldComputedBillFlag() {
+    void clearBillFlag() {
         Session session = new Session();
         Customer customer = new Customer("customer", "Carol", "Buyer", "1 Main St", "pwd", new NormalDiscountPolicy());
 
@@ -102,7 +102,7 @@ class SessionTest {
     }
 
     @Test
-    void startCheckoutRejectsNonCashier() {
+    void notCashier() {
         Session session = new Session();
         session.login(new Manager("manager", "Alice", "Boss", "pwd"));
         Customer customer = new Customer("customer", "Carol", "Buyer", "1 Main St", "pwd", new NormalDiscountPolicy());
@@ -111,7 +111,7 @@ class SessionTest {
     }
 
     @Test
-    void currentCartRejectsWhenNoCheckoutIsActive() {
+    void noCheckout() {
         Session session = new Session();
 
         assertFalse(session.hasActiveCheckout());
@@ -120,7 +120,7 @@ class SessionTest {
     }
 
     @Test
-    void endCheckoutClearsCheckout() {
+    void endCheckout() {
         Session session = new Session();
         Customer customer = new Customer("customer", "Carol", "Buyer", "1 Main St", "pwd", new NormalDiscountPolicy());
         session.login(new Cashier("cashier", "Bob", "Till", "pwd"));

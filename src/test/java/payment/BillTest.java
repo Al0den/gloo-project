@@ -17,7 +17,7 @@ class BillTest {
     }
 
     @Test
-    void finalAmountIsTotalPlusDeliveryFee() {
+    void finalAmount() {
         Bill bill = bill();
 
         bill.setTotalAmount(43.20);
@@ -27,7 +27,7 @@ class BillTest {
     }
 
     @Test
-    void billRejectsNegativeAmounts() {
+    void badBillAmount() {
         Bill bill = bill();
 
         assertThrows(IllegalArgumentException.class, () -> bill.setTotalAmount(-0.01));

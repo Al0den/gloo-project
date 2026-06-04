@@ -8,7 +8,7 @@ class PrimeDiscountPolicyTest {
     private static final double EPSILON = 0.0001;
 
     @Test
-    void primeDiscountAppliesOnlyFromFiftyEuros() {
+    void primeBill() {
         PrimeDiscountPolicy policy = new PrimeDiscountPolicy();
 
         assertEquals(49.99, policy.apply(49.99), EPSILON);
@@ -17,7 +17,7 @@ class PrimeDiscountPolicyTest {
     }
 
     @Test
-    void primeCustomerPaysHalfDeliveryFee() {
+    void primeDelivery() {
         PrimeDiscountPolicy policy = new PrimeDiscountPolicy();
 
         assertEquals(7.5, policy.applyDeliveryDiscount(15.0), EPSILON);

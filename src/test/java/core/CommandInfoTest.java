@@ -10,7 +10,7 @@ import cli.CommandInfo;
 
 class CommandInfoTest {
     @Test
-    void commandInfoStoresCommandMetadata() {
+    void commandInfo() {
         Command command = args -> { };
 
         CommandInfo info = new CommandInfo("description", command, "Manager", 2, "command <a> <b>");

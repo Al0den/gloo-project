@@ -10,7 +10,7 @@ class POSDeviceTest {
     private static final double EPSILON = 0.0001;
 
     @Test
-    void processPaymentDelegatesToTransactionSystemByDefault() {
+    void processPayment() {
         TransactionSystem transactionSystem = new TransactionSystem();
         transactionSystem.registerCard(new BankCard("1234", "0000", 100.0));
         POSDevice posDevice = new POSDevice(transactionSystem);
@@ -22,7 +22,7 @@ class POSDeviceTest {
     }
 
     @Test
-    void simulateNextPaymentForcesOnePaymentOutcomeOnly() {
+    void simulateOnce() {
         TransactionSystem transactionSystem = new TransactionSystem();
         transactionSystem.registerCard(new BankCard("1234", "0000", 100.0));
         POSDevice posDevice = new POSDevice(transactionSystem);
@@ -39,7 +39,7 @@ class POSDeviceTest {
     }
 
     @Test
-    void simulateAuthDeniedReturnsFailure() {
+    void authDenied() {
         POSDevice posDevice = new POSDevice(new TransactionSystem());
 
         posDevice.simulateNextPayment(PaymentOutcome.AUTH_DENIED);
@@ -50,7 +50,7 @@ class POSDeviceTest {
     }
 
     @Test
-    void forcedFailureDoesNotDebitCard() {
+    void forcedFail() {
         TransactionSystem transactionSystem = new TransactionSystem();
         BankCard card = new BankCard("1234", "0000", 100.0);
         transactionSystem.registerCard(card);
@@ -65,7 +65,7 @@ class POSDeviceTest {
     }
 
     @Test
-    void forcedSuccessStillChecksRealCardAndPinBeforeDebiting() {
+    void forcedSuccess() {
         TransactionSystem transactionSystem = new TransactionSystem();
         BankCard card = new BankCard("1234", "0000", 100.0);
         transactionSystem.registerCard(card);

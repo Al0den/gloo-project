@@ -33,6 +33,48 @@ To remove the compiled files:
 rm -rf out
 ```
 
+## Open in Eclipse
+
+The easiest way is:
+
+```text
+File -> Import -> Maven -> Existing Maven Projects
+```
+
+Then select the project folder and finish.
+
+If Eclipse shows errors like `Inventory cannot be resolved to a type`, check the build path:
+
+```text
+Right click project -> Build Path -> Configure Build Path -> Source
+```
+
+The source folders should include:
+
+```text
+src/main/java
+src/test/java
+```
+
+The test files must stay in `src/test/java`, for example:
+
+```text
+src/test/java/inventory/InventoryTest.java
+```
+
+and the source files must stay in:
+
+```text
+src/main/java/inventory/Inventory.java
+src/main/java/inventory/Item.java
+```
+
+After changing this, use:
+
+```text
+Project -> Clean
+```
+
 ## Stop the program
 
 In the CLI:
@@ -68,6 +110,15 @@ runfile scenarios/test_basic_checkout.txt
 ```
 
 This command is typed inside the CLI.
+
+## Useful commands
+
+```text
+additem milk dairy 1.20 1.00 50
+restock milk 10
+setstockthreshold milk 8
+showinventory
+```
 
 ## Entry point
 

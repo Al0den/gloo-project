@@ -8,7 +8,7 @@ import cli.Command;
 
 class CommandTest {
     @Test
-    void commandCanBeImplementedWithLambda() {
+    void lambdaCommand() {
         String[][] capturedArgs = new String[1][];
         Command command = args -> capturedArgs[0] = args;
 

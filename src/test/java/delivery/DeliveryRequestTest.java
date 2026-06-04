@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 class DeliveryRequestTest {
     @Test
-    void deliveryRequestStoresAddressDistanceAndSlot() {
+    void requestData() {
         DeliverySlot slot = new DeliverySlot("morning", 8, 12, 100.0, false, false);
 
         DeliveryRequest request = new DeliveryRequest("1 Main St", 12.5, slot);

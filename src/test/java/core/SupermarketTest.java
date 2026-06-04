@@ -22,7 +22,7 @@ class SupermarketTest {
     private static final double EPSILON = 0.0001;
 
     @Test
-    void constructorRegistersDefaultManager() {
+    void defaultManager() {
         Supermarket supermarket = new Supermarket();
 
         assertTrue(supermarket.userExists("ceo"));
@@ -30,7 +30,7 @@ class SupermarketTest {
     }
 
     @Test
-    void setupRegistersDefaultCashierAndCustomer() {
+    void setupUsers() {
         Supermarket supermarket = new Supermarket();
 
         supermarket.setup();
@@ -45,7 +45,7 @@ class SupermarketTest {
     }
 
     @Test
-    void registerUsersStoresUsersWithExpectedRoles() {
+    void registerUsers() {
         Supermarket supermarket = new Supermarket();
 
         supermarket.registerManager("Alice", "Boss", "alice", "pwd");
@@ -60,7 +60,7 @@ class SupermarketTest {
     }
 
     @Test
-    void registerUserRejectsDuplicateUsername() {
+    void duplicateUser() {
         Supermarket supermarket = new Supermarket();
 
         assertThrows(
@@ -70,7 +70,7 @@ class SupermarketTest {
     }
 
     @Test
-    void addItemStoresPriceWeightStockAndCategory() {
+    void addItemData() {
         Supermarket supermarket = new Supermarket();
         Category category = supermarket.getCategoryOrCreate("dairy");
 
@@ -87,7 +87,7 @@ class SupermarketTest {
     }
 
     @Test
-    void addItemCreatesMissingCategoryAndRejectsDuplicateItem() {
+    void addItemCategory() {
         Supermarket supermarket = new Supermarket();
 
         supermarket.addItem("dairy", "milk", 1.20, 1.00, 50);
@@ -99,7 +99,7 @@ class SupermarketTest {
     }
 
     @Test
-    void restockIncreasesExistingItemStock() {
+    void restock() {
         Supermarket supermarket = new Supermarket();
         supermarket.addItem("dairy", "milk", 1.20, 1.00, 50);
 
@@ -109,7 +109,7 @@ class SupermarketTest {
     }
 
     @Test
-    void restockRejectsUnknownItemAndNonPositiveQuantity() {
+    void badRestock() {
         Supermarket supermarket = new Supermarket();
         supermarket.addItem("dairy", "milk", 1.20, 1.00, 50);
 
@@ -121,14 +121,35 @@ class SupermarketTest {
     }
 
     @Test
-    void setCategoryDiscountRejectsMissingCategory() {
+    void stockThreshold() {
+        Supermarket supermarket = new Supermarket();
+        supermarket.addItem("dairy", "milk", 1.20, 1.00, 50);
+
+        supermarket.setLowStockThreshold("milk", 20);
+
+        assertEquals(20, supermarket.getItem("milk").getLowStockThreshold());
+    }
+
+    @Test
+    void badStockThreshold() {
+        Supermarket supermarket = new Supermarket();
+        supermarket.addItem("dairy", "milk", 1.20, 1.00, 50);
+
+        assertAll(
+                () -> assertThrows(IllegalArgumentException.class, () -> supermarket.setLowStockThreshold("missing", 10)),
+                () -> assertThrows(IllegalArgumentException.class, () -> supermarket.setLowStockThreshold("milk", -1))
+        );
+    }
+
+    @Test
+    void badCategoryDiscount() {
         Supermarket supermarket = new Supermarket();
 
         assertThrows(IllegalArgumentException.class, () -> supermarket.setCategoryDiscount("missing", 10.0));
     }
 
     @Test
-    void addRevenueAccumulatesRevenue() {
+    void revenue() {
         Supermarket supermarket = new Supermarket();
 
         supermarket.addRevenue(10.50);
@@ -138,7 +159,7 @@ class SupermarketTest {
     }
 
     @Test
-    void subscribeToPlanChangesCustomerPlanAndAddsFeeToRevenue() {
+    void subscribePlan() {
         Supermarket supermarket = new Supermarket();
         supermarket.registerCustomer("Carol", "Buyer", "carol", "1 Main St", "pwd", "normal");
         Customer customer = (Customer) supermarket.getUser("carol");
@@ -150,7 +171,7 @@ class SupermarketTest {
     }
 
     @Test
-    void requestDeliveryRejectsInvalidTimeAndKeepsCustomerWithoutDelivery() {
+    void badDeliveryTime() {
         Supermarket supermarket = new Supermarket();
         supermarket.registerCustomer("Carol", "Buyer", "carol", "1 Main St", "pwd", "normal");
         Customer customer = (Customer) supermarket.getUser("carol");
@@ -161,7 +182,7 @@ class SupermarketTest {
     }
 
     @Test
-    void computeBillAppliesCategoryDiscountCustomerPlanAndDeliveryFee() {
+    void computeBill() {
         Supermarket supermarket = new Supermarket();
         supermarket.getCategoryOrCreate("dairy");
         supermarket.addItem("dairy", "milk", 10.00, 2.00, 10);
@@ -180,7 +201,7 @@ class SupermarketTest {
     }
 
     @Test
-    void finalizeSaleChargesExactFinalAmountAndUpdatesSaleState() {
+    void saleOk() {
         Supermarket supermarket = new Supermarket();
         supermarket.addItem("dairy", "milk", 10.00, 2.00, 10);
         supermarket.setCategoryDiscount("dairy", 10.0);
@@ -208,7 +229,7 @@ class SupermarketTest {
     }
 
     @Test
-    void finalizeSaleWithWrongPinDoesNotChangeMoneyStockOrDelivery() {
+    void saleWrongPin() {
         Supermarket supermarket = new Supermarket();
         supermarket.addItem("dairy", "milk", 10.00, 2.00, 10);
         supermarket.registerCustomer("Carol", "Buyer", "carol", "1 Main St", "pwd", "normal");

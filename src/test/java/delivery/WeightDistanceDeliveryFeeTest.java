@@ -14,7 +14,7 @@ class WeightDistanceDeliveryFeeTest {
     private static final DeliverySlot NORMAL_SLOT = new DeliverySlot("morning", 8, 12, 100.0, false, false);
 
     @Test
-    void computeFeeReturnsFixedFeeForLightNearbyDelivery() {
+    void fixedFee() {
         Cart cart = new Cart();
         cart.addItem(new Item("milk", 2.0, 2.0, 10), new Category(), 2);
         DeliveryRequest request = new DeliveryRequest("1 Main St", 10.0, NORMAL_SLOT);
@@ -25,7 +25,7 @@ class WeightDistanceDeliveryFeeTest {
     }
 
     @Test
-    void computeFeeAddsPercentageForHeavyOrFarDelivery() {
+    void heavyFee() {
         Cart cart = new Cart();
         cart.addItem(new Item("water", 2.0, 6.0, 10), new Category(), 2);
         DeliveryRequest request = new DeliveryRequest("1 Main St", 10.0, NORMAL_SLOT);
@@ -36,7 +36,7 @@ class WeightDistanceDeliveryFeeTest {
     }
 
     @Test
-    void computeFeeAppliesPeakHourMultiplier() {
+    void peakFee() {
         Cart cart = new Cart();
         cart.addItem(new Item("water", 2.0, 6.0, 10), new Category(), 2);
         DeliverySlot peakSlot = new DeliverySlot("lunch", 12, 14, 100.0, true, false);
@@ -48,7 +48,7 @@ class WeightDistanceDeliveryFeeTest {
     }
 
     @Test
-    void computeFeeAppliesEcoFriendlyMultiplier() {
+    void ecoFee() {
         Cart cart = new Cart();
         cart.addItem(new Item("water", 2.0, 6.0, 10), new Category(), 2);
         DeliverySlot ecoSlot = new DeliverySlot("afternoon", 14, 18, 100.0, false, true);
@@ -60,7 +60,7 @@ class WeightDistanceDeliveryFeeTest {
     }
 
     @Test
-    void computeFeeRejectsDeliveriesOfAtLeastFiftyKg() {
+    void tooHeavy() {
         Cart cart = new Cart();
         cart.addItem(new Item("water", 2.0, 25.0, 10), new Category(), 2);
         DeliveryRequest request = new DeliveryRequest("1 Main St", 10.0, NORMAL_SLOT);

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 class DiscountPolicyFactoryTest {
     @Test
-    void createReturnsKnownPlans() {
+    void knownPlans() {
         assertInstanceOf(NormalDiscountPolicy.class, DiscountPolicyFactory.create(null));
         assertInstanceOf(NormalDiscountPolicy.class, DiscountPolicyFactory.create("normal"));
         assertInstanceOf(PrimeDiscountPolicy.class, DiscountPolicyFactory.create("prime"));
@@ -15,12 +15,12 @@ class DiscountPolicyFactoryTest {
     }
 
     @Test
-    void createIsCaseInsensitive() {
+    void caseInsensitive() {
         assertInstanceOf(PrimeDiscountPolicy.class, DiscountPolicyFactory.create("PRIME"));
     }
 
     @Test
-    void createRejectsUnknownPlan() {
+    void unknownPlan() {
         assertThrows(IllegalArgumentException.class, () -> DiscountPolicyFactory.create("gold"));
     }
 }

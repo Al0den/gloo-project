@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 class CashierTest {
     @Test
-    void cashierHasCashierRoleAndCanLoginWithPassword() {
+    void cashierLogin() {
         Cashier cashier = new Cashier("cashier1", "Bob", "Durand", "1234");
 
         assertEquals("Cashier", cashier.getRole());

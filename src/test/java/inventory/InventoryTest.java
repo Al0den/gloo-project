@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class InventoryTest {
     @Test
-    void addAndRemoveCategoryUpdatesInventory() {
+    void categoryAddRemove() {
         Inventory inventory = new Inventory(new HashMap<>());
 
         inventory.addCategory("dairy");
@@ -22,7 +22,7 @@ class InventoryTest {
     }
 
     @Test
-    void addItemStoresItemInCategory() {
+    void addItem() {
         Inventory inventory = new Inventory(new HashMap<>());
         inventory.addCategory("dairy");
         Item milk = new Item("milk", 1.5, 1.0, 10);
@@ -35,7 +35,7 @@ class InventoryTest {
     }
 
     @Test
-    void addItemToUnknownCategoryDoesNothing() {
+    void missingCategory() {
         Inventory inventory = new Inventory(new HashMap<>());
         Item milk = new Item("milk", 1.5, 1.0, 10);
 

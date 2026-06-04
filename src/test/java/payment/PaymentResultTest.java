@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 class PaymentResultTest {
     @Test
-    void paymentResultStoresStatusOutcomeAndMessage() {
+    void resultData() {
         PaymentResult result = new PaymentResult(false, PaymentOutcome.PIN_WRONG, "Wrong PIN.");
 
         assertFalse(result.isSuccess());

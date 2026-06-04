@@ -61,6 +61,8 @@ public class CLI {
         commands.put("logout", new CommandInfo("Logout from the system", this::logout, null, 0, "logout"));
         commands.put("additem", new CommandInfo("Add an item to the inventory", this::addItem, "Manager", 5, "additem <name> <category> <unitPrice> <weight> <stock>"));
         commands.put("restock", new CommandInfo("Restock an inventory item", this::restock, "Manager", 2, "restock <itemName> <quantity>"));
+        commands.put("setstockthreshold", new CommandInfo("Set low stock threshold", this::setStockThreshold, "Manager", 2, "setstockthreshold <itemName> <threshold>"));
+        commands.put("setlowstockthreshold", new CommandInfo("Set low stock threshold", this::setStockThreshold, "Manager", 2, "setlowstockthreshold <itemName> <threshold>"));
         commands.put("setcategorydiscount", new CommandInfo("Set discount for a category", this::setCategoryDiscount, "Manager", 2, "setcategorydiscount <category> <discount>"));
         commands.put("registercustomer", new CommandInfo("Register a new customer", this::registerCustomer, "Manager", 5, "registercustomer <firstName> <surname> <username> <address> <password>"));
         commands.put("registermanager", new CommandInfo("Register a new manager", this::registerManager, "Manager", 4, "registermanager <firstName> <surname> <username> <password>"));
@@ -377,6 +379,16 @@ public class CLI {
 
         supermarket.restock(itemName, quantity);
         println("Restocked item " + itemName + " by " + quantity + ". Current stock: " + supermarket.getItem(itemName).getStock());
+    }
+
+    private void setStockThreshold(String[] args) {
+        String itemName = args[0];
+
+        Integer threshold = parseIntArg(args[1], "threshold");
+        if (threshold == null) return;
+
+        supermarket.setLowStockThreshold(itemName, threshold);
+        println("Low stock threshold for " + itemName + " set to " + threshold);
     }
 
     private void login(String[] args) {

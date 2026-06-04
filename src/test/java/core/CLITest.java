@@ -13,7 +13,7 @@ import cli.CLI;
 
 class CLITest {
     @Test
-    void runDisplaysHelpAndThenExits() {
+    void helpExit() {
         String output = runCliWithInput("help\nexit\n");
 
         assertTrue(output.contains("Welcome to the Supermarket CLI"));
@@ -23,7 +23,7 @@ class CLITest {
     }
 
     @Test
-    void managerCanRestockItemFromCli() {
+    void cliRestock() {
         String output = runCliWithInput(
                 "login ceo 123456789\n"
                 + "additem milk dairy 1.20 1.00 50\n"
@@ -37,7 +37,7 @@ class CLITest {
     }
 
     @Test
-    void showInventoryMarksLowStockItems() {
+    void showLowStock() {
         String output = runCliWithInput(
                 "login ceo 123456789\n"
                 + "additem steak meat 12.50 0.50 4\n"
@@ -51,7 +51,21 @@ class CLITest {
     }
 
     @Test
-    void requestDeliveryUsesLevenshteinDistanceFromSupermarketAddress() {
+    void cliThreshold() {
+        String output = runCliWithInput(
+                "login ceo 123456789\n"
+                + "additem milk dairy 1.20 1.00 10\n"
+                + "setstockthreshold milk 11\n"
+                + "showinventory\n"
+                + "exit\n"
+        );
+
+        assertTrue(output.contains("Low stock threshold for milk set to 11"));
+        assertTrue(output.contains("milk - Price: 1.2, Stock: 10 [LOW STOCK]"));
+    }
+
+    @Test
+    void cliDelivery() {
         String output = runCliWithInput(
                 "login ceo 123456789\n"
                 + "additem basket dairy 100.00 1.00 10\n"

@@ -12,7 +12,7 @@ class ItemTest {
     private static final double EPSILON = 0.0001;
 
     @Test
-    void constructorRejectsInvalidItemInformation() {
+    void badItem() {
         assertThrows(IllegalArgumentException.class, () -> new Item(null, 1.5, 1.0, 10));
         assertThrows(IllegalArgumentException.class, () -> new Item("", 1.5, 1.0, 10));
         assertThrows(IllegalArgumentException.class, () -> new Item("milk", -0.01, 1.0, 10));
@@ -22,7 +22,7 @@ class ItemTest {
     }
 
     @Test
-    void setPriceChangesPrice() {
+    void setPrice() {
         Item item = new Item("milk", 1.5, 1.0, 10);
 
         item.setPrice(2.0);
@@ -31,7 +31,7 @@ class ItemTest {
     }
 
     @Test
-    void setPriceRejectsNegativePrice() {
+    void badPrice() {
         Item item = new Item("milk", 1.5, 1.0, 10);
 
         assertThrows(IllegalArgumentException.class, () -> item.setPrice(-0.01));
@@ -39,7 +39,7 @@ class ItemTest {
     }
 
     @Test
-    void setStockRejectsNegativeStock() {
+    void badStock() {
         Item item = new Item("milk", 1.5, 1.0, 10);
 
         assertThrows(IllegalArgumentException.class, () -> item.setStock(-1));
@@ -47,7 +47,24 @@ class ItemTest {
     }
 
     @Test
-    void decreaseStockReducesStock() {
+    void threshold() {
+        Item item = new Item("milk", 1.5, 1.0, 10);
+
+        item.setLowStockThreshold(12);
+
+        assertEquals(12, item.getLowStockThreshold());
+    }
+
+    @Test
+    void badThreshold() {
+        Item item = new Item("milk", 1.5, 1.0, 10);
+
+        assertThrows(IllegalArgumentException.class, () -> item.setLowStockThreshold(-1));
+        assertEquals(5, item.getLowStockThreshold());
+    }
+
+    @Test
+    void decreaseStock() {
         Item item = new Item("milk", 1.5, 1.0, 10);
 
         item.decreaseStock(3);
@@ -56,7 +73,7 @@ class ItemTest {
     }
 
     @Test
-    void decreaseStockRejectsTooLargeAmount() {
+    void tooMuchStock() {
         Item item = new Item("milk", 1.5, 1.0, 10);
 
         assertThrows(IllegalArgumentException.class, () -> item.decreaseStock(11));
@@ -64,7 +81,7 @@ class ItemTest {
     }
 
     @Test
-    void decreaseStockRejectsNegativeAmount() {
+    void badDecrease() {
         Item item = new Item("milk", 1.5, 1.0, 10);
 
         assertThrows(IllegalArgumentException.class, () -> item.decreaseStock(-1));
@@ -72,7 +89,7 @@ class ItemTest {
     }
 
     @Test
-    void customObserverIsNotifiedWhenStockChanges() {
+    void observerCalled() {
         Item item = new Item("milk", 1.5, 1.0, 10);
         CountingObserver observer = new CountingObserver();
         item.addStockObserver(observer);
@@ -84,7 +101,7 @@ class ItemTest {
     }
 
     @Test
-    void removedObserverIsNotNotifiedAnymore() {
+    void removeObserver() {
         Item item = new Item("milk", 1.5, 1.0, 10);
         CountingObserver observer = new CountingObserver();
         item.addStockObserver(observer);

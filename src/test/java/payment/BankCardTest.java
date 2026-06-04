@@ -11,7 +11,7 @@ class BankCardTest {
     private static final double EPSILON = 0.0001;
 
     @Test
-    void constructorRejectsInvalidCardInformation() {
+    void badCard() {
         assertThrows(IllegalArgumentException.class, () -> new BankCard(null, "0000", 100.0));
         assertThrows(IllegalArgumentException.class, () -> new BankCard("", "0000", 100.0));
         assertThrows(IllegalArgumentException.class, () -> new BankCard("1234", null, 100.0));
@@ -20,14 +20,14 @@ class BankCardTest {
     }
 
     @Test
-    void constructorAllowsEmptyBalanceCard() {
+    void zeroBalance() {
         BankCard card = new BankCard("1234", "0000", 0.0);
 
         assertEquals(0.0, card.getBalance(), EPSILON);
     }
 
     @Test
-    void checkPinAcceptsOnlyCorrectPin() {
+    void checkPin() {
         BankCard card = new BankCard("1234", "0000", 100.0);
 
         assertTrue(card.checkPin("0000"));
@@ -35,7 +35,7 @@ class BankCardTest {
     }
 
     @Test
-    void hasEnoughBalanceChecksAvailableMoney() {
+    void enoughBalance() {
         BankCard card = new BankCard("1234", "0000", 100.0);
 
         assertTrue(card.hasEnoughBalance(100.0));
@@ -43,7 +43,7 @@ class BankCardTest {
     }
 
     @Test
-    void debitReducesBalance() {
+    void debit() {
         BankCard card = new BankCard("1234", "0000", 100.0);
 
         card.debit(25.5);
@@ -52,7 +52,7 @@ class BankCardTest {
     }
 
     @Test
-    void debitRejectsInvalidAmountAndKeepsBalance() {
+    void badDebit() {
         BankCard card = new BankCard("1234", "0000", 100.0);
 
         assertThrows(IllegalArgumentException.class, () -> card.debit(0.0));

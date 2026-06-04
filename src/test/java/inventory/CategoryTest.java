@@ -10,7 +10,7 @@ class CategoryTest {
     private static final double EPSILON = 0.0001;
 
     @Test
-    void addAndRemoveItemUpdatesCategoryItems() {
+    void categoryAddRemove() {
         Category category = new Category();
         Item milk = new Item("milk", 1.5, 1.0, 10);
 
@@ -24,7 +24,7 @@ class CategoryTest {
     }
 
     @Test
-    void setPriceChangesItemPrice() {
+    void setPrice() {
         Category category = new Category();
         Item milk = new Item("milk", 1.5, 1.0, 10);
         category.addItem(milk);
@@ -35,7 +35,7 @@ class CategoryTest {
     }
 
     @Test
-    void setPriceOnMissingItemDoesNothing() {
+    void missingPrice() {
         Category category = new Category();
         Item milk = new Item("milk", 1.5, 1.0, 10);
         category.addItem(milk);
@@ -46,7 +46,7 @@ class CategoryTest {
     }
 
     @Test
-    void getItemsReturnsCopyOfItems() {
+    void itemsCopy() {
         Category category = new Category();
         Item milk = new Item("milk", 1.5, 1.0, 10);
         category.addItem(milk);
@@ -57,7 +57,7 @@ class CategoryTest {
     }
 
     @Test
-    void categoryCanUseCustomPricingPolicy() {
+    void customPolicy() {
         Category category = new Category();
         Item apple = new Item("apple", 1.0, 0.2, 10);
 

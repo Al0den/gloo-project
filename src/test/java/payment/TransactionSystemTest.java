@@ -10,7 +10,7 @@ class TransactionSystemTest {
     private static final double EPSILON = 0.0001;
 
     @Test
-    void authorizeAcceptsValidPaymentAndDebitsCard() {
+    void authOk() {
         TransactionSystem transactionSystem = new TransactionSystem();
         BankCard card = new BankCard("1234", "0000", 100.0);
         transactionSystem.registerCard(card);
@@ -23,7 +23,7 @@ class TransactionSystemTest {
     }
 
     @Test
-    void authorizeRejectsUnknownCard() {
+    void unknownCard() {
         TransactionSystem transactionSystem = new TransactionSystem();
 
         PaymentResult result = transactionSystem.authorize("missing", "0000", 10.0);
@@ -33,7 +33,7 @@ class TransactionSystemTest {
     }
 
     @Test
-    void authorizeRejectsWrongPinWithoutDebitingCard() {
+    void wrongPin() {
         TransactionSystem transactionSystem = new TransactionSystem();
         BankCard card = new BankCard("1234", "0000", 100.0);
         transactionSystem.registerCard(card);
@@ -46,7 +46,7 @@ class TransactionSystemTest {
     }
 
     @Test
-    void authorizeRejectsInsufficientFundsWithoutDebitingCard() {
+    void noMoney() {
         TransactionSystem transactionSystem = new TransactionSystem();
         BankCard card = new BankCard("1234", "0000", 10.0);
         transactionSystem.registerCard(card);
@@ -59,7 +59,7 @@ class TransactionSystemTest {
     }
 
     @Test
-    void forcePaymentDebitsRegisteredCardWithoutPin() {
+    void forceOk() {
         TransactionSystem transactionSystem = new TransactionSystem();
         BankCard card = new BankCard("1234", "0000", 100.0);
         transactionSystem.registerCard(card);
@@ -72,7 +72,7 @@ class TransactionSystemTest {
     }
 
     @Test
-    void forcePaymentRejectsUnknownCard() {
+    void forceUnknown() {
         TransactionSystem transactionSystem = new TransactionSystem();
 
         PaymentResult result = transactionSystem.forcePayment("missing", 10.0);
