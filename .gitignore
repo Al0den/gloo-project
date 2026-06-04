@@ -5,3 +5,4 @@ target/
 *.pdf
 .vscode
 *.DS_Store
+.settings/
