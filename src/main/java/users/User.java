@@ -1,6 +1,6 @@
 package users;
 
-public class User {
+public abstract class User {
     protected String firstName;
     protected String surname;
     protected String username;
@@ -29,7 +29,5 @@ public class User {
         return surname;
     }
 
-    public String getRole() {
-        return "User";
-    }
+    public abstract String getRole();
 }
