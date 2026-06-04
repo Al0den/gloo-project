@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import inventory.Category;
 import inventory.Item;
+import payment.Bill;
 import users.Cart;
 import users.Customer;
 
@@ -140,8 +141,8 @@ class SupermarketTest {
         Cart cart = new Cart();
         cart.addItem(supermarket.getItem("milk"), supermarket.getItemCategory("milk"), 6);
 
-        double total = supermarket.computeBill(customer, cart);
+        Bill bill = supermarket.computeBill(customer, cart);
 
-        assertEquals(51.78, total, EPSILON);
+        assertEquals(51.78, bill.getFinalAmount(), EPSILON);
     }
 }

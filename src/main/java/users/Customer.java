@@ -50,4 +50,9 @@ public class Customer extends User {
     public DeliveryRequest getDeliveryRequest() {
         return deliveryRequest;
     }
+
+    public void clearDeliveryRequest() {
+        this.hasRequestedDelivery = false;
+        this.deliveryRequest = null;
+    }
 }

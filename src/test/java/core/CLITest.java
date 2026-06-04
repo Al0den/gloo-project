@@ -70,7 +70,7 @@ class CLITest {
                 + "exit\n"
         );
 
-        assertTrue(output.contains("Total bill: 120.0"));
+        assertTrue(output.contains("Total: 120.0"));
     }
 
     private static String runCliWithInput(String input) {

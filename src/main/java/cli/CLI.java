@@ -6,6 +6,7 @@ import users.Cart;
 import inventory.Category;
 import inventory.Item;
 import core.Supermarket;
+import payment.Bill;
 
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -144,30 +145,12 @@ public class CLI {
             return;
         }
 
-        if (!session.hasComputedBill()) {
-            println("Compute the bill before payment.");
-            return;
-        }
-
         String cardNumber = args[0];
         String pin = args[1];
-        double amount = session.getCurrentBill();
+       
+        Bill bill = supermarket.finalizeSale(session.getCheckoutCustomer(), session.getCurrentCart(), cardNumber, pin);
 
-        payment.PaymentResult result = supermarket.getPosDevice().processPayment(cardNumber, pin, amount);
-
-        if (!result.isSuccess()) {
-            println(result.getMessage());
-            return;
-        }
-
-        supermarket.addRevenue(amount);
-
-        session.getCurrentCart().finalizeSale();
-
-        println("Payment accepted.");
-        println("Receipt:");
-        println("Customer: " + session.getCheckoutCustomer().getUsername());
-        println("Total paid: " + amount);
+        println(bill.toString());
 
         session.endCheckout();
     }
@@ -210,10 +193,9 @@ public class CLI {
         Cart cart = session.getCurrentCart();
         Customer customer = session.getCheckoutCustomer();
 
-        double total = supermarket.computeBill(customer, cart);
+        Bill bill = supermarket.computeBill(customer, cart);
 
-        session.setCurrentBill(total);
-        println("Total bill: " + total);
+        println(bill.toString());
     }
 
     private void scanItem(String[] args) {

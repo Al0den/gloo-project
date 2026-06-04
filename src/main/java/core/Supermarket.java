@@ -20,6 +20,7 @@ import delivery.DeliveryScheduler;
 import delivery.DeliverySlot;
 import delivery.DistanceCalculator;
 import delivery.LevenschteinDistanceCalculator;
+import payment.Bill;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -180,10 +181,11 @@ public class Supermarket {
         item.setStock(item.getStock() + quantity);
     }
 
-    public Double computeBill(Customer customer, Cart cart) {
+    public Bill computeBill(Customer customer, Cart cart) {
+        Bill bill = new Bill(customer);
         DiscountPolicy discountPolicy = customer.getDiscountPolicy();
 
-        double itemsTotal = cart.getTotalPrice(discountPolicy);
+        double itemsTotal = cart.getTotalPrice(discountPolicy, bill);
 
         double deliveryFee = 0.0;
         if (customer.hasRequestedDelivery()) {
@@ -192,7 +194,9 @@ public class Supermarket {
             deliveryFee = customer.getDiscountPolicy().applyDeliveryDiscount(baseDeliveryFee);
         }
 
-        return itemsTotal + deliveryFee;
+        bill.setDeliveryFee(deliveryFee);
+
+        return bill;
     }
 
     public void subscribeToPlan(Customer customer, String planName) {
@@ -224,5 +228,25 @@ public class Supermarket {
         }
 
         customer.requestDelivery(address, distance, slot);
+    }
+
+    public Bill finalizeSale(Customer customer, Cart cart, String cardNumber, String pin) {
+        Bill bill = computeBill(customer, cart);
+
+        payment.PaymentResult result = getPosDevice().processPayment(cardNumber, pin, bill.getFinalAmount());
+
+        if (!result.isSuccess()) {
+            System.out.println(result.getMessage());
+            return null;
+        }
+
+        bill.setStatus(true);
+
+        addRevenue(bill.getFinalAmount());
+
+        cart.finalizeSale();
+        customer.clearDeliveryRequest();
+
+        return bill;
     }
 }

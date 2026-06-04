@@ -1,6 +1,5 @@
 package core;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,8 +15,6 @@ import org.junit.jupiter.api.Test;
 import cli.Session;
 
 class SessionTest {
-    private static final double EPSILON = 0.0001;
-
     @Test
     void loginAndLogoutUpdateCurrentUser() {
         Session session = new Session();
@@ -89,29 +86,25 @@ class SessionTest {
     }
 
     @Test
-    void currentBillMustBeSetBeforeReading() {
+    void currentCartRejectsWhenNoCheckoutIsActive() {
         Session session = new Session();
 
-        assertFalse(session.hasComputedBill());
-        assertThrows(IllegalStateException.class, session::getCurrentBill);
-
-        session.setCurrentBill(42.5);
-
-        assertTrue(session.hasComputedBill());
-        assertEquals(42.5, session.getCurrentBill(), EPSILON);
+        assertFalse(session.hasActiveCheckout());
+        assertThrows(IllegalStateException.class, session::getCurrentCart);
+        assertThrows(IllegalStateException.class, session::getCheckoutCustomer);
     }
 
     @Test
-    void endCheckoutClearsCheckoutAndBill() {
+    void endCheckoutClearsCheckout() {
         Session session = new Session();
         Customer customer = new Customer("customer", "Carol", "Buyer", "1 Main St", "pwd", new NormalDiscountPolicy());
         session.login(new Cashier("cashier", "Bob", "Till", "pwd"));
         session.startCheckout(customer);
-        session.setCurrentBill(42.5);
 
         session.endCheckout();
 
         assertFalse(session.hasActiveCheckout());
-        assertFalse(session.hasComputedBill());
+        assertThrows(IllegalStateException.class, session::getCurrentCart);
+        assertThrows(IllegalStateException.class, session::getCheckoutCustomer);
     }
 }

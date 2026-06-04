@@ -7,11 +7,17 @@ import discount.PrimeDiscountPolicy;
 import inventory.Category;
 import inventory.Item;
 import inventory.PercentageCategoryPricingPolicy;
+import payment.Bill;
 
 import org.junit.jupiter.api.Test;
 
 class CartTest {
     private static final double EPSILON = 0.0001;
+
+    private Bill bill() {
+        Customer customer = new Customer("customer", "Carol", "Buyer", "1 Main St", "pwd", new NormalDiscountPolicy());
+        return new Bill(customer);
+    }
 
     @Test
     void addItemComputesTotalPriceAndWeight() {
@@ -21,7 +27,7 @@ class CartTest {
 
         cart.addItem(milk, dairy, 3);
 
-        assertEquals(6.0, cart.getTotalPrice(new NormalDiscountPolicy()), EPSILON);
+        assertEquals(6.0, cart.getTotalPrice(new NormalDiscountPolicy(), bill()), EPSILON);
         assertEquals(4.5, cart.getTotalWeight(), EPSILON);
     }
 
@@ -34,7 +40,7 @@ class CartTest {
         cart.addItem(yogurt, dairy, 2);
         cart.addItem(yogurt, dairy, 3);
 
-        assertEquals(5.0, cart.getTotalPrice(new NormalDiscountPolicy()), EPSILON);
+        assertEquals(5.0, cart.getTotalPrice(new NormalDiscountPolicy(), bill()), EPSILON);
         assertEquals(1.0, cart.getTotalWeight(), EPSILON);
     }
 
@@ -47,7 +53,7 @@ class CartTest {
 
         cart.addItem(steak, meat, 2);
 
-        assertEquals(43.2, cart.getTotalPrice(new PrimeDiscountPolicy()), EPSILON);
+        assertEquals(43.2, cart.getTotalPrice(new PrimeDiscountPolicy(), bill()), EPSILON);
     }
 
     @Test
@@ -60,7 +66,7 @@ class CartTest {
         cart.finalizeSale();
 
         assertEquals(6, cheese.getStock());
-        assertEquals(0.0, cart.getTotalPrice(new NormalDiscountPolicy()), EPSILON);
+        assertEquals(0.0, cart.getTotalPrice(new NormalDiscountPolicy(), bill()), EPSILON);
         assertEquals(0.0, cart.getTotalWeight(), EPSILON);
     }
 }

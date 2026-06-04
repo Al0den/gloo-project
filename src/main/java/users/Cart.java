@@ -3,6 +3,7 @@ package users;
 import discount.DiscountPolicy;
 import inventory.Category;
 import inventory.Item;
+import payment.Bill;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ public class Cart {
         itemMap.put(item, itemMap.getOrDefault(item, 0) + quantity);
     }
 
-    public double getTotalPrice(DiscountPolicy discountPolicy) {
+    public double getTotalPrice(DiscountPolicy discountPolicy, Bill bill) {
         double total = 0;
 
         for (Map.Entry<Category, Map<Item, Integer>> categoryEntry : items.entrySet()) {
@@ -53,10 +54,14 @@ public class Cart {
 
                 double linePrice = category.getPricingPolicy().apply(item, quantity);
                 total += linePrice;
+
+                bill.onSale(category, item, quantity, linePrice);
             }
         }
         
         total = discountPolicy.apply(total);
+
+        bill.setTotalAmount(total);
 
         return total;
     }
