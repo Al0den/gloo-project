@@ -1,0 +1,75 @@
+# =========================================================================
+# testScenario3_discounts_and_plans.txt
+# -------------------------------------------------------------------------
+# Purpose:
+#   Focus on category pricing policies and customer discount plans.
+#   Tests:
+#     - category discount on fruit-and-vegetables
+#     - normal plan: no discount
+#     - prime plan: discount only when item total >= 50
+#     - platinum plan: discount regardless of threshold
+# =========================================================================
+
+login ceo 123456789
+setup
+
+addItem apple fruit-and-vegetables 1.00 0.20 200
+addItem cheese dairy 5.00 0.40 100
+addItem steak meat 20.00 0.50 100
+setCategoryDiscount fruit-and-vegetables 10
+
+registerCashier Bob Dupont bob bobpwd
+registerCustomer Normal Buyer normalbuyer "1 normal street" normalpwd
+registerCustomer Prime Buyer primebuyer "2 prime street" primepwd
+registerCustomer Platinum Buyer platinumbuyer "3 platinum street" platinumpwd
+logout
+
+login primebuyer primepwd
+subscribeToPlan prime
+logout
+
+login platinumbuyer platinumpwd
+subscribeToPlan platinum
+logout
+
+# Normal customer: no customer-plan discount, but category discount applies to apples.
+login bob bobpwd
+startCheckout normalbuyer
+scanItem apple 10
+scanItem cheese 2
+computeBill
+simulatePayment SUCCESS
+pay 4242424242424242 12345
+logout
+
+# Prime customer below threshold: prime should NOT reduce item total below 50.
+login bob bobpwd
+startCheckout primebuyer
+scanItem steak 2
+computeBill
+simulatePayment SUCCESS
+pay 4242424242424242 12345
+logout
+
+# Prime customer at/above threshold: prime 20% should apply.
+login bob bobpwd
+startCheckout primebuyer
+scanItem steak 3
+computeBill
+simulatePayment SUCCESS
+pay 4242424242424242 12345
+logout
+
+# Platinum customer: 30% should apply regardless of threshold.
+login bob bobpwd
+startCheckout platinumbuyer
+scanItem cheese 2
+computeBill
+simulatePayment SUCCESS
+pay 4242424242424242 12345
+logout
+
+login ceo 123456789
+showRevenue
+showInventory
+logout

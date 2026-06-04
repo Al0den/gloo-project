@@ -1,0 +1,66 @@
+# =========================================================================
+# testScenario6_delivery_slots_dynamic_pricing.txt
+# -------------------------------------------------------------------------
+# Purpose:
+#   Delivery pricing and time-slot behavior.
+#   Tests:
+#     - normal morning slot
+#     - peak-hour lunch slot, should increase delivery fee
+#     - eco-friendly afternoon slot, should reduce delivery fee
+#     - prime delivery discount: customer pays 50% of delivery fee
+#     - platinum delivery discount: delivery is free
+# =========================================================================
+
+login ceo 123456789
+setup
+addItem water beverages 10.00 6.00 100
+registerCashier Dana Cashier dana danapwd
+registerCustomer Alice Morning alice "same address morning" alicepwd
+registerCustomer Paul Peak paul "same address lunch" paulpwd
+registerCustomer Pia Eco pia "same address afternoon" piapwd
+logout
+
+login alice alicepwd
+requestDelivery "same address morning" morning
+logout
+
+login paul paulpwd
+subscribeToPlan prime
+requestDelivery "same address lunch" lunch
+logout
+
+login pia piapwd
+subscribeToPlan platinum
+requestDelivery "same address afternoon" afternoon
+logout
+
+# Each cart weighs 12kg, so delivery fee uses the heavy/far formula.
+# Morning: normal fee. Lunch: peak multiplier. Afternoon/platinum: delivery fee should become 0.
+login dana danapwd
+startCheckout alice
+scanItem water 2
+computeBill
+simulatePayment SUCCESS
+pay 4242424242424242 12345
+logout
+
+login dana danapwd
+startCheckout paul
+scanItem water 2
+computeBill
+simulatePayment SUCCESS
+pay 4242424242424242 12345
+logout
+
+login dana danapwd
+startCheckout pia
+scanItem water 2
+computeBill
+simulatePayment SUCCESS
+pay 4242424242424242 12345
+logout
+
+login ceo 123456789
+showRevenue
+showInventory
+logout

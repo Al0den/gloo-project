@@ -1,0 +1,46 @@
+# =========================================================================
+# testScenario4_payment_failures_then_success.txt
+# -------------------------------------------------------------------------
+# Purpose:
+#   Payment unhappy paths, then recovery without losing the checkout.
+#   Tests:
+#     - forced PIN_WRONG
+#     - forced INSUFFICIENT_FUNDS
+#     - forced AUTH_DENIED
+#     - unknown card without forced outcome
+#     - final successful retry finalizes sale
+# =========================================================================
+
+login ceo 123456789
+setup
+addItem headphones electronics 30.00 0.20 10
+registerCashier Eva Cashier eva evapwd
+registerCustomer Marc Client marc "payment street" marcpwd
+logout
+
+login eva evapwd
+startCheckout marc
+scanItem headphones 1
+computeBill
+
+simulatePayment PIN_WRONG
+pay 4242424242424242 12345
+
+simulatePayment INSUFFICIENT_FUNDS
+pay 4242424242424242 12345
+
+simulatePayment AUTH_DENIED
+pay 4242424242424242 12345
+
+# Unknown card should fail through the normal TransactionSystem.
+pay 9999999999999999 12345
+
+# Final retry succeeds and should decrement inventory only once.
+simulatePayment SUCCESS
+pay 4242424242424242 12345
+logout
+
+login ceo 123456789
+showInventory
+showRevenue
+logout

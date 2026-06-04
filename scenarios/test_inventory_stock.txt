@@ -1,0 +1,35 @@
+# =========================================================================
+# testScenario5_inventory_low_stock_and_restock.txt
+# -------------------------------------------------------------------------
+# Purpose:
+#   Inventory management, low-stock observer alert, and restocking.
+#   Tests:
+#     - stock is decremented only after successful payment
+#     - low-stock marker/observer for meat/dairy-like items
+#     - manager restock increases quantity
+# =========================================================================
+
+login ceo 123456789
+setup
+addItem steak meat 12.50 0.50 6
+addItem yogurt dairy 0.80 0.15 6
+registerCashier Leo Cashier leo leopwd
+registerCustomer Nina Customer nina "inventory street" ninapwd
+logout
+
+login leo leopwd
+startCheckout nina
+scanItem steak 2
+scanItem yogurt 2
+computeBill
+simulatePayment SUCCESS
+pay 4242424242424242 12345
+logout
+
+# Stocks should now be 4 and 4, i.e. low-stock territory.
+login ceo 123456789
+showInventory
+restock steak 20
+restock yogurt 10
+showInventory
+logout

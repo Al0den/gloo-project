@@ -6,9 +6,6 @@ import users.Cart;
 import inventory.Category;
 import inventory.Item;
 import core.Supermarket;
-import delivery.DistanceCalculator;
-import delivery.LevenschteinDistanceCalculator;
-import delivery.DeliverySlot;
 
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -226,7 +223,7 @@ public class CLI {
     private void startCheckout(String[] args) {
         String customerUsername = args[0];
         User user = supermarket.getUser(customerUsername);
-        
+
         if (user == null || !(user instanceof Customer)) {
             System.out.println("Customer not found: " + customerUsername);
             return;

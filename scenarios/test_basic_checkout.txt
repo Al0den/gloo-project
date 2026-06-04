@@ -1,0 +1,39 @@
+# =========================================================================
+# testScenario2_basic_checkout_no_delivery.txt
+# -------------------------------------------------------------------------
+# Purpose:
+#   Basic happy-path checkout without delivery.
+#   Tests: setup, manager catalogue creation, cashier/customer registration,
+#   checkout, scanItem, computeBill, successful payment, inventory decrement,
+#   revenue update.
+# =========================================================================
+
+login ceo 123456789
+setup
+
+# Catalogue
+addItem milk dairy 2.00 1.00 20
+addItem bread bakery 1.50 0.30 30
+addItem steak meat 10.00 0.50 10
+
+# Users
+registerCashier Claire Martin claire clairepwd
+registerCustomer Paul Durand paul "10 rue simple" paulpwd
+logout
+
+# Checkout: expected item total = 2*2 + 3*1.5 + 1*10 = 18.50
+login claire clairepwd
+startCheckout paul
+scanItem milk 2
+scanItem bread 3
+scanItem steak 1
+computeBill
+simulatePayment SUCCESS
+pay 4242424242424242 12345
+logout
+
+# Final state inspection
+login ceo 123456789
+showInventory
+showRevenue
+logout

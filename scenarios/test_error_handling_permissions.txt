@@ -1,0 +1,56 @@
+# =========================================================================
+# testScenario7_error_handling_and_permissions.txt
+# -------------------------------------------------------------------------
+# Purpose:
+#   Negative scenario: the CLI should reject bad commands/misuse and continue.
+#   Tests:
+#     - command requiring login
+#     - wrong password
+#     - permission errors by role
+#     - unknown item / unknown customer / bad category discount
+#     - valid flow after errors
+# =========================================================================
+
+# Not logged in: should be rejected.
+showInventory
+addItem milk dairy 2.00 1.00 10
+
+# Wrong password: should be rejected.
+login ceo wrongpassword
+
+# Valid manager setup.
+login ceo 123456789
+setup
+addItem milk dairy 2.00 1.00 10
+registerCashier Tom Cashier tom tompwd
+registerCustomer Sara Client sara "error street" sarapwd
+
+# Duplicate username: should be rejected.
+registerCustomer Other Client sara "duplicate street" pwd
+
+# Invalid discount percentage: should be rejected if validation is wired through CLI.
+setCategoryDiscount dairy 150
+logout
+
+# Customer trying cashier/manager operations: should be rejected.
+login sara sarapwd
+scanItem milk 1
+startCheckout sara
+addItem bread bakery 1.00 0.20 10
+logout
+
+# Cashier mistakes, then valid checkout.
+login tom tompwd
+startCheckout missingcustomer
+startCheckout sara
+scanItem unknownitem 1
+scanItem milk 2
+computeBill
+simulatePayment SUCCESS
+pay 4242424242424242 12345
+logout
+
+login ceo 123456789
+showInventory
+showRevenue
+logout
