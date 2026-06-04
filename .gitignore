@@ -2,7 +2,6 @@ bin/
 target/
 .settings/
 .venv/
-*.pdf
 .vscode
 *.DS_Store
 .settings/
