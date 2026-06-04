@@ -18,12 +18,40 @@ public class CLI {
     private Supermarket supermarket;
     private Session session;
 
+    private boolean silent = false;
+
     public CLI(Supermarket supermarket) {
         this.supermarket = supermarket;
         this.session = new Session();
         this.commands = new HashMap<>();
 
         registerCommands();
+    }
+
+    private void println(String message) {
+        if (!silent) {
+            System.out.println(message);
+        }
+    }
+
+    public void runFile(String filename) {
+        try (Scanner fileScanner = new Scanner(new java.io.File(filename))) {
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine().trim();
+                if (!line.isEmpty() && !line.startsWith("#")) {
+                    if (!silent) {
+                        println("> " + line);
+                    }
+                    executeCommand(line);
+                }
+            }
+        } catch (java.io.FileNotFoundException e) {
+            println("File not found: " + filename);
+        }
+    }
+
+    public void setSilent(boolean silent) {
+        this.silent = silent;
     }
 
     private void registerCommands() {
@@ -36,7 +64,7 @@ public class CLI {
         commands.put("registercustomer", new CommandInfo("Register a new customer", this::registerCustomer, "Manager", 5, "registercustomer <firstName> <surname> <username> <address> <password>"));
         commands.put("registermanager", new CommandInfo("Register a new manager", this::registerManager, "Manager", 4, "registermanager <firstName> <surname> <username> <password>"));
         commands.put("registercashier", new CommandInfo("Register a new cashier", this::registerCashier, "Manager", 4, "registercashier <firstName> <surname> <username> <password>"));
-        commands.put("runtest", new CommandInfo("Run a script file", this::runFile, null, 1, "runtest <filename>"));
+        commands.put("runtest", new CommandInfo("Run a script file", (args) -> runFile(args[0]), null, 1, "runtest <filename>"));
         commands.put("setup", new CommandInfo("Initialize the system", this::setup, "Manager", 0, "setup"));
         commands.put("subscribetoplan", new CommandInfo("Subscribe to a plan", this::subscribeToPlan, "Customer", 1, "subscribetoplan <plan_id>"));
         commands.put("requestdelivery", new CommandInfo("Request delivery", this::requestDelivery, "Customer", 1, "requestdelivery <address>"));
@@ -47,13 +75,14 @@ public class CLI {
         commands.put("pay", new CommandInfo("Pay the bill", this::pay, "Cashier", 2, "pay <cardNumber> <pin>"));
         commands.put("showrevenue", new CommandInfo("Show revenue", this::showRevenue, "Manager", 0, "showrevenue"));
         commands.put("showinventory", new CommandInfo("Show inventory", this::showInventory, "Manager", 0, "showinventory"));
+        commands.put("registercard", new CommandInfo("Register a bank card", this::registerCard, "Manager", 3, "registercard <cardNumber> <pin> <balance>"));
     }
 
     public void run() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Welcome to the Supermarket CLI");
-        System.out.println("Type help to see available commands.");
+        println("Welcome to the Supermarket CLI");
+        println("Type help to see available commands.");
 
         while (true) {
             System.out.print("> ");
@@ -64,7 +93,7 @@ public class CLI {
             }
 
             if (input.equalsIgnoreCase("stop") || input.equalsIgnoreCase("exit")) {
-                System.out.println("Exiting...");
+                println("Exiting...");
                 break;
             }
 
@@ -97,26 +126,26 @@ public class CLI {
             try {
                 cmdInfo.getAction().execute(args);
             } catch (Exception e) {
-                System.out.println("Error executing command: " + e.getMessage());
+                println("Error executing command: " + e.getMessage());
             }
         } else {
-            System.out.println("Unknown command: " + command);
+            println("Unknown command: " + command);
         }
     }
 
     private void logout(String[] args) {
         session.logout();
-        System.out.println("Logged out.");
+        println("Logged out.");
     }
 
     private void pay(String[] args) {
         if (!session.hasActiveCheckout()) {
-            System.out.println("No active checkout.");
+            println("No active checkout.");
             return;
         }
 
         if (!session.hasComputedBill()) {
-            System.out.println("Compute the bill before payment.");
+            println("Compute the bill before payment.");
             return;
         }
 
@@ -127,7 +156,7 @@ public class CLI {
         payment.PaymentResult result = supermarket.getPosDevice().processPayment(cardNumber, pin, amount);
 
         if (!result.isSuccess()) {
-            System.out.println(result.getMessage());
+            println(result.getMessage());
             return;
         }
 
@@ -135,30 +164,30 @@ public class CLI {
 
         session.getCurrentCart().finalizeSale();
 
-        System.out.println("Payment accepted.");
-        System.out.println("Receipt:");
-        System.out.println("Customer: " + session.getCheckoutCustomer().getUsername());
-        System.out.println("Total paid: " + amount);
+        println("Payment accepted.");
+        println("Receipt:");
+        println("Customer: " + session.getCheckoutCustomer().getUsername());
+        println("Total paid: " + amount);
 
         session.endCheckout();
     }
 
     private void setup(String[] args) {
         supermarket.setup();
-        System.out.println("Supermarket setup completed.");
+        println("Supermarket setup completed.");
     }
 
     private void showRevenue(String[] args) {
-        System.out.println("Total revenue: " + supermarket.getRevenue());
+        println("Total revenue: " + supermarket.getRevenue());
     }
 
     private void showInventory(String[] args) {
-        System.out.println("Current inventory:");
+        println("Current inventory:");
         for (Map.Entry<String, Item> entry : supermarket.getInventory().entrySet()) {
             String itemName = entry.getKey();
             Item item = entry.getValue();
             String lowStockMarker = item.getStock() < item.getLowStockThreshold() ? " [LOW STOCK]" : "";
-            System.out.println(itemName + " - Price: " + item.getPrice() + ", Stock: " + item.getStock() + lowStockMarker);
+            println(itemName + " - Price: " + item.getPrice() + ", Stock: " + item.getStock() + lowStockMarker);
         }
     }
 
@@ -166,15 +195,15 @@ public class CLI {
         try {
             payment.PaymentOutcome outcome = payment.PaymentOutcome.valueOf(args[0].toUpperCase());
             supermarket.getPosDevice().simulateNextPayment(outcome);
-            System.out.println("Next payment forced to: " + outcome);
+            println("Next payment forced to: " + outcome);
         } catch (IllegalArgumentException e) {
-            System.out.println("Invalid payment outcome: " + args[0]);
+            println("Invalid payment outcome: " + args[0]);
         }
     }
 
     private void computeBill(String[] args) {
         if (!session.hasActiveCheckout()) {
-            System.out.println("No active checkout. Use startCheckout to begin.");
+            println("No active checkout. Use startCheckout to begin.");
             return;
         }
         
@@ -184,19 +213,19 @@ public class CLI {
         double total = supermarket.computeBill(customer, cart);
 
         session.setCurrentBill(total);
-        System.out.println("Total bill: " + total);
+        println("Total bill: " + total);
     }
 
     private void scanItem(String[] args) {
         if (!session.hasActiveCheckout()) {
-            System.out.println("No active checkout. Use startCheckout to begin.");
+            println("No active checkout. Use startCheckout to begin.");
             return;
         }
 
         String itemName = args[0];
         Item item = supermarket.getItem(itemName);
         if (item == null) {
-            System.out.println("Item not found: " + itemName);
+            println("Item not found: " + itemName);
             return;
         }
 
@@ -206,18 +235,28 @@ public class CLI {
         if (quantity == null) return;
 
         if (quantity <= 0) {
-            System.out.println("Quantity must be positive.");
+            println("Quantity must be positive.");
             return;
         }
 
         Integer stock = item.getStock();
         if (stock != null && stock < quantity) {
-            System.out.println("Insufficient stock for item: " + item.getName() + ". Available: " + stock + ", requested: " + quantity);
+            println("Insufficient stock for item: " + item.getName() + ". Available: " + stock + ", requested: " + quantity);
             return;
         }
 
         session.getCurrentCart().addItem(item, cat, quantity);
-        System.out.println("Scanned item: " + item.getName() + " - Price: " + item.getPrice() * quantity);
+        println("Scanned item: " + item.getName() + " - Price: " + item.getPrice() * quantity);
+    }
+
+    private void registerCard(String[] args) {
+        String cardNumber = args[0];
+        String pin = args[1];
+        Double balance = parseDoubleArg(args[2], "balance");
+        if (balance == null) return;
+
+        supermarket.getTransactionSystem().registerCard(new payment.BankCard(cardNumber, pin, balance));
+        println("Registered card: " + cardNumber + " with balance " + balance);
     }
 
     private void startCheckout(String[] args) {
@@ -225,13 +264,13 @@ public class CLI {
         User user = supermarket.getUser(customerUsername);
 
         if (user == null || !(user instanceof Customer)) {
-            System.out.println("Customer not found: " + customerUsername);
+            println("Customer not found: " + customerUsername);
             return;
         }
 
         Customer customer = (Customer) user;
         session.startCheckout(customer);
-        System.out.println("Started checkout for customer: " + customer.getFirstName() + " (" + customer.getUsername() + ")");
+        println("Started checkout for customer: " + customer.getFirstName() + " (" + customer.getUsername() + ")");
     }
 
     private void requestDelivery(String[] args) {
@@ -242,11 +281,11 @@ public class CLI {
         try {
             supermarket.requestDelivery(customer, address, time);
         } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+            println(e.getMessage());
             return;
         }
 
-        System.out.println("Delivery requested to " + address + " at " + time);
+        println("Delivery requested to " + address + " at " + time);
     }
 
     private void subscribeToPlan(String[] args) {
@@ -254,22 +293,7 @@ public class CLI {
         Customer customer = (Customer) session.getCurrentUser();
 
         supermarket.subscribeToPlan(customer, planName);
-        System.out.println("Subscribed to discount plan: " + planName);
-    }
-
-    private void runFile(String[] args) {
-        String filename = args[0];
-        try (Scanner fileScanner = new Scanner(new java.io.File(filename))) {
-            while (fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine().trim();
-                if (!line.isEmpty() && !line.startsWith("#")) {
-                    System.out.println("> " + line);
-                    executeCommand(line);
-                }
-            }
-        } catch (java.io.FileNotFoundException e) {
-            System.out.println("File not found: " + filename);
-        }
+        println("Subscribed to discount plan: " + planName);
     }
 
     private void registerManager(String[] args) {
@@ -279,12 +303,12 @@ public class CLI {
         String password = args[3];
 
         if (supermarket.userExists(username)) {
-            System.out.println("Username already exists: " + username);
+            println("Username already exists: " + username);
             return;
         }
 
         supermarket.registerManager(firstName, surname, username, password);
-        System.out.println("Registered manager: " + firstName + " " + surname + " (" + username + ")");
+        println("Registered manager: " + firstName + " " + surname + " (" + username + ")");
     }
 
     private void registerCashier(String[] args) {
@@ -294,12 +318,12 @@ public class CLI {
         String password = args[3];
 
         if (supermarket.userExists(username)) {
-            System.out.println("Username already exists: " + username);
+            println("Username already exists: " + username);
             return;
         }
 
         supermarket.registerCashier(firstName, surname, username, password);
-        System.out.println("Registered cashier: " + firstName + " " + surname + " (" + username + ")");
+        println("Registered cashier: " + firstName + " " + surname + " (" + username + ")");
     }
 
     private void registerCustomer(String[] args) {
@@ -310,7 +334,7 @@ public class CLI {
         String password = args[4];
 
         supermarket.registerCustomer(firstName, surname, username, address, password, "normal");
-        System.out.println("Registered customer: " + firstName + " " + surname + " (" + username + ")");
+        println("Registered customer: " + firstName + " " + surname + " (" + username + ")");
     }
 
     private void setCategoryDiscount(String[] args) {
@@ -336,7 +360,7 @@ public class CLI {
         if (stock == null) return;
 
         supermarket.addItem(categoryName, itemName, price, weight, stock);
-        System.out.println("Added item " + itemName + " to category " + categoryName + " with price " + price + ", " + weight + " and stock " + stock);
+        println("Added item " + itemName + " to category " + categoryName + " with price " + price + ", " + weight + " and stock " + stock);
     }
 
     private void restock(String[] args) {
@@ -346,7 +370,7 @@ public class CLI {
         if (quantity == null) return;
 
         supermarket.restock(itemName, quantity);
-        System.out.println("Restocked item " + itemName + " by " + quantity + ". Current stock: " + supermarket.getItem(itemName).getStock());
+        println("Restocked item " + itemName + " by " + quantity + ". Current stock: " + supermarket.getItem(itemName).getStock());
     }
 
     private void login(String[] args) {
@@ -354,7 +378,7 @@ public class CLI {
         String password = args[1];
 
         if (!supermarket.userExists(name)) {
-            System.out.println("User not found: " + name);
+            println("User not found: " + name);
             return;
         }
 
@@ -362,16 +386,16 @@ public class CLI {
 
         if (user.checkPassword(password)) {
             session.login(user);
-            System.out.println("Logged in as " + user.getFirstName() + " (" + user.getRole() + ")");
+            println("Logged in as " + user.getFirstName() + " (" + user.getRole() + ")");
         } else {
-            System.out.println("Incorrect password for user: " + name);
+            println("Incorrect password for user: " + name);
         }        
     }
 
     private void printHelp(String[] args) {
         for (Map.Entry<String, CommandInfo> entry : commands.entrySet()) {
             CommandInfo cmdInfo = entry.getValue();
-            System.out.println(cmdInfo.getUsage() + " - " + cmdInfo.getDescription());
+            println(cmdInfo.getUsage() + " - " + cmdInfo.getDescription());
         }
     }
 

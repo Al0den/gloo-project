@@ -78,7 +78,7 @@ public class Supermarket {
     }
 
     public void setup() {
-        getCategoryOrCreate("diary");
+        getCategoryOrCreate("dairy");
         getCategoryOrCreate("fruit-and-vegetables");
         getCategoryOrCreate("meat");
 
@@ -92,6 +92,10 @@ public class Supermarket {
 
         tas.registerCard(new BankCard("4242424242424242", "12345", 1000.0));
         tas.registerCard(new BankCard("1111222233334444", "0000", 5.0));
+    }
+
+    public TransactionSystem getTransactionSystem() {
+        return tas;
     }
 
     public POSDevice getPosDevice() {
