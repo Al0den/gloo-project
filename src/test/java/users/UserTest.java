@@ -19,6 +19,6 @@ class UserTest {
     void baseUserHasNoRole() {
         User user = new User("jdoe", "John", "Doe", "secret");
 
-        assertEquals("None", user.getRole());
+        assertEquals("User", user.getRole());
     }
 }

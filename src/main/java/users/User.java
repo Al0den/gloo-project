@@ -1,10 +1,10 @@
 package users;
 
 public class User {
-    private String firstName;
-    private String surname;
-    private String username;
-    private String password;
+    protected String firstName;
+    protected String surname;
+    protected String username;
+    protected String password;
 
     public User(String username, String firstName, String surname, String password) {
         this.firstName = firstName;
@@ -30,6 +30,6 @@ public class User {
     }
 
     public String getRole() {
-        return "None";
+        return "User";
     }
 }
