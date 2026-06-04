@@ -91,5 +91,6 @@ public class Session {
     public void endCheckout() {
         this.checkoutCustomer = null;
         this.currentCart = null;
+        this.billGenerated = false;
     }
 }

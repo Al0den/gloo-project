@@ -14,7 +14,7 @@ public class Main {
             cli.runFile(CONFIG_FILE);
             System.out.println("Loaded configuration from " + CONFIG_FILE);
         } catch (Exception e) {
-            System.out.println("Error loading configuration: " + e.getMessage());
+            System.out.println("Warning: Error loading configuration: " + e.getMessage());
         }
         cli.setSilent(false);
 

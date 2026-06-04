@@ -47,7 +47,6 @@ public class Item {
             throw new IllegalArgumentException("Price cannot be negative");
         }
         this.price = price;
-        notifyStockObservers();
     }
 
     public double getPrice() {

@@ -66,6 +66,7 @@ public class CLI {
         commands.put("registermanager", new CommandInfo("Register a new manager", this::registerManager, "Manager", 4, "registermanager <firstName> <surname> <username> <password>"));
         commands.put("registercashier", new CommandInfo("Register a new cashier", this::registerCashier, "Manager", 4, "registercashier <firstName> <surname> <username> <password>"));
         commands.put("runtest", new CommandInfo("Run a script file", (args) -> runFile(args[0]), null, 1, "runtest <filename>"));
+        commands.put("runfile", new CommandInfo("Run a script file", (args) -> runFile(args[0]), null, 1, "runfile <filename>"));
         commands.put("setup", new CommandInfo("Initialize the system", this::setup, "Manager", 0, "setup"));
         commands.put("subscribetoplan", new CommandInfo("Subscribe to a plan", this::subscribeToPlan, "Customer", 1, "subscribetoplan <plan_id>"));
         commands.put("requestdelivery", new CommandInfo("Request delivery", this::requestDelivery, "Customer", 1, "requestdelivery <address>"));
