@@ -68,7 +68,7 @@ public class Cart {
             for (Map.Entry<Item, Integer> itemEntry : itemMap.entrySet()) {
                 Item item = itemEntry.getKey();
                 int quantity = itemEntry.getValue();
-                item.setStock(item.getStock() - quantity);
+                item.decreaseStock(quantity);
             }
         }
 

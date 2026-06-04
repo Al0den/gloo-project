@@ -17,7 +17,7 @@ public class POSDevice {
             PaymentResult result;
             switch (forcedOutcome) {
                 case SUCCESS:
-                    result = new PaymentResult(true, PaymentOutcome.SUCCESS, "Payment accepted.");
+                    result = new PaymentResult(false, PaymentOutcome.SUCCESS, "Payment accepted.");
                     break;
                 case CARD_NOT_FOUND:
                     result = new PaymentResult(false, PaymentOutcome.CARD_NOT_FOUND, "Card not found.");

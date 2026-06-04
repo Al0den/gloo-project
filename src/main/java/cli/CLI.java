@@ -46,7 +46,7 @@ public class CLI {
                 }
             }
         } catch (java.io.FileNotFoundException e) {
-            println("File not found: " + filename);
+            throw new RuntimeException("File not found: " + filename);
         }
     }
 

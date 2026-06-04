@@ -30,7 +30,11 @@ public class Item {
     }
 
     public void setPrice(double price) {
+        if (price < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
+        }
         this.price = price;
+        notifyStockObservers();
     }
 
     public double getPrice() {
@@ -46,12 +50,18 @@ public class Item {
     }
 
     public void setStock(Integer stock) {
+        if (stock < 0) {
+            throw new IllegalArgumentException("Stock cannot be negative");
+        }
         this.stock = stock;
 
         notifyStockObservers();
     }
 
     public void decreaseStock(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Amount to decrease cannot be negative");
+        }
         if (amount > stock) {
             throw new IllegalArgumentException("Not enough stock available");
         }

@@ -24,6 +24,13 @@ public class BankCard {
     }
 
     public void debit(double amount) {
+        if (!hasEnoughBalance(amount)) {
+            throw new IllegalArgumentException("Insufficient funds");
+        }
+        if (amount < 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+        
         balance -= amount;
     }
 
