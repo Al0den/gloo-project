@@ -41,7 +41,7 @@ public class Cart {
         itemMap.put(item, itemMap.getOrDefault(item, 0) + quantity);
     }
 
-    public double getTotalPrice(DiscountPolicy discountPolicy, Bill bill) {
+    public double computeTotalAndFillBill(DiscountPolicy discountPolicy, Bill bill) {
         double total = 0;
 
         for (Map.Entry<Category, Map<Item, Integer>> categoryEntry : items.entrySet()) {

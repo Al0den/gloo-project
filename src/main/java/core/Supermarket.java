@@ -185,7 +185,7 @@ public class Supermarket {
         Bill bill = new Bill(customer);
         DiscountPolicy discountPolicy = customer.getDiscountPolicy();
 
-        double itemsTotal = cart.getTotalPrice(discountPolicy, bill);
+        double itemsTotal = cart.computeTotalAndFillBill(discountPolicy, bill);
 
         double deliveryFee = 0.0;
         if (customer.hasRequestedDelivery()) {

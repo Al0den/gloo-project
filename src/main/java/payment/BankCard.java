@@ -12,8 +12,8 @@ public class BankCard {
         if (pin == null || pin.isBlank()) {
             throw new IllegalArgumentException("PIN cannot be empty");
         }
-        if (balance < 0) {
-            throw new IllegalArgumentException("Balance cannot be negative");
+        if (balance <= 0) {
+            throw new IllegalArgumentException("Balance cannot be zero or negative");
         }
         
         this.cardNumber = cardNumber;

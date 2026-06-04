@@ -40,6 +40,7 @@ public class Session {
         this.currentUser = null;
         this.checkoutCustomer = null;
         this.currentCart = null;
+        this.billGenerated = false;
     }
 
     public boolean isManager() {
